@@ -11,15 +11,21 @@
 % 2) download ghcnd-inventory.txt into the same folder
 % 3) download mingle-list.txt into the same folder
 
-%% load dly format of ghcnd data
+%% load dly format of ghcnd data (epoch length = 30 yrs, )
 % read all raw ghcnd station data with start year <= startyear and
 % end year >= endyear
+% For epoch length of 20 years, users need to change the values of the
+% follwing variables as:
+% thelength=20; startyear=1955:5:1980; endyear=1998:5:2023
+% For epoch length of 10 years, users need to change the values of the
+% follwing variables as:
+% thelength=10; startyear=1980:5:1995; endyear=2014:-5:1999
+
 clear
 clc
-prfolder='/share/cliprelabs/jh2423/modesofchange_system/github_repo/data_process/ghcnd_pr/'; % the folder saved all initially read ghcnd data in mat format
+prfolder='/share/cliprelabs/jh2423/P1/data_process/ghcnd_pr/'; % the folder saved all initially read ghcnd data in mat format
 directory='/share/cliprelabs/observations/ghcnd_all.tar/';
-% for epoch length = 30 yrs, 
-thelength=30;
+thelength=30; % epoch length
 missrate=19; % set acceptable miss rate 
 
 for startyear=1955:1964  % startyear: latest start year
@@ -72,7 +78,12 @@ minglelist='/share/cliprelabs/observations/ghcnd_all.tar/mingle-list.txt';
 jud=ismember(theidnum(:,1),finalids);
 final_sources=theidnum(jud,:);
 
-            
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+save(['/share/cliprelabs/jh2423/P1/data_process/ghcnd_pr/','thinner_dailypr_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),'_',...
+    num2str(period2(1)),num2str(period2(end)),'.mat'],...
+    'finalsta_prcp','finalids','finallat','finallon','years','qclat', 'qclon');
+
+
         end
         
         
@@ -80,4 +91,6 @@ final_sources=theidnum(jud,:);
     
     
 end
+
+
 
