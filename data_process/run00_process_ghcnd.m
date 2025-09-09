@@ -1,4 +1,4 @@
-%% processing ghcnd data from dly files to netCDF outputs
+%% processing ghcnd data from dly files
 % 4 September 2025, Jingya Han, Cornell University, Ithaca, NY. jh2423@cornell.edu
 % You might need to change the path of dly files for your use
 % 
@@ -79,6 +79,31 @@ jud=ismember(theidnum(:,1),finalids);
 final_sources=theidnum(jud,:);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% save latitudes and longitudes of final stations and ghcnd stations
+ncfile5=('/share/cliprelabs/jh2423/P1/dataforplot/stationslatlon.nc');
+
+finallat=finallat(:); finallat=single(finallat);
+finallon=finallon(:); finallon=single(finallon);
+ghcnlats=ghcnlats(:); ghcnlats=single(ghcnlats);
+ghcnlons=ghcnlons(:); ghcnlons=single(ghcnlons);
+
+qcstations=length(finallat);
+nccreate(ncfile5, 'finallat','Dimensions',{'qcstations',qcstations},'DeflateLevel',9);
+nccreate(ncfile5, 'finallon','Dimensions',{'qcstations',qcstations},'DeflateLevel',9);
+ghcnstations=length(ghcnlats);
+nccreate(ncfile5, 'ghcnlats','Dimensions',{'ghcnstations',ghcnstations},'DeflateLevel',9);
+nccreate(ncfile5, 'ghcnlons','Dimensions',{'ghcnstations',ghcnstations},'DeflateLevel',9);
+
+ncwrite(ncfile5, 'finallat', finallat);
+ncwrite(ncfile5, 'finallon', finallon);
+ncwrite(ncfile5, 'ghcnlats', ghcnlats);
+ncwrite(ncfile5, 'ghcnlons', ghcnlons);
+
+ncwriteatt(ncfile5, '/', 'title', 'latitude and longitude of stations');
+% Add global attributes (metadata)
+[ncfile5]=nc_metadata(ncfile5);
+
+%% save daily precip series used in the study
 save(['/share/cliprelabs/jh2423/P1/data_process/ghcnd_pr/','thinner_dailypr_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),'_',...
     num2str(period2(1)),num2str(period2(end)),'.mat'],...
     'finalsta_prcp','finalids','finallat','finallon','years','qclat', 'qclon');
