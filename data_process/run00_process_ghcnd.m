@@ -72,7 +72,7 @@ missrate, period1, period2, years,ghcndprcp, ghcnids,ghcnlats,ghcnlons);
 [finalsta_prcp,finalids,finallat,finallon,years, gsn_jud]=thinner_stations(...
     [], qc_prcp, qcids, qclat, qclon, years);
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% source check?? %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% source check?? %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 minglelist='/share/cliprelabs/observations/ghcnd_all.tar/mingle-list.txt';
 [theidnum]=numofsources(minglelist);
 jud=ismember(theidnum(:,1),finalids);
