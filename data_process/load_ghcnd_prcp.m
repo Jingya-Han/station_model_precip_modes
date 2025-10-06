@@ -119,7 +119,7 @@ for stati=1:length(ghcnids)
     tic
 
     fprintf(fileID,'%16s\n' ,[num2str(stati) ' ' ghcnids{stati}]); % station rank; station id    
-    fid=fopen(strcat(directory,'ghcnd_all/',ghcnids{stati},'.dly'));
+    fid=fopen(strcat(directory,ghcnids{stati},'.dly'));
     tline=fgetl(fid);
     while ischar(tline)
         year=str2num(tline(12:15));
