@@ -8,6 +8,8 @@
 % from:https://www.ncei.noaa.gov/pub/data/ghcn/daily/
 % Then extract the files from tar into one folder, I extract the file into a
 % folder called: '/share/cliprelabs/observations/ghcnd_all.tar/'
+% you can do it in a terminal as follows:
+%($tar -xvf ghcnd_all.tar.gz -C /path/to/destination/)
 % 2) download ghcnd-inventory.txt into the same folder
 % 3) download mingle-list.txt into the same folder
 
