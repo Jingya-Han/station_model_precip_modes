@@ -7,7 +7,7 @@
 % 1) users can download all ghcnd data (ghcnd_all.tar.gz) 
 % from:https://www.ncei.noaa.gov/pub/data/ghcn/daily/
 % Then extract the files from tar into one folder, I extract the file into a
-% folder called: '/share/cliprelabs/observations/ghcnd_all.tar/'
+% folder called: '/share/cliprelabs/observations/ghcnd_all.tar/'.
 % you can do it in a terminal as follows:
 %($tar -xvf ghcnd_all.tar.gz -C /path/to/destination/)
 % 2) download ghcnd-inventory.txt into the same folder
@@ -26,12 +26,15 @@
 clear
 clc
 prfolder='/share/cliprelabs/jh2423/P1/data_process/ghcnd_pr/'; % the folder saved all initially read ghcnd data in mat format
-directory='/share/cliprelabs/observations/ghcnd_all.tar/';
+directory='/share/cliprelabs/observations/ghcnd_backup/ghcn_daily_data_20250418/ghcnd_all/';
 thelength=30; % epoch length
 missrate=19; % set acceptable miss rate 
+minglelistpath='/share/cliprelabs/observations/ghcnd_backup/ghcn_daily_data_20250418/mingle-list.txt';
+inventorypath='/share/cliprelabs/observations/ghcnd_backup/ghcn_daily_data_20250418/';
+fnames='/share/cliprelabs/observations/ghcnd_backup/ghcn_daily_data_20250418/ghcnd_all_fnames.txt'; % this is a file that we made
 
-for startyear=1955:1964  % startyear: latest start year
-    for endyear=2023:-1:2014  % endyear: earliest end year
+for startyear=1955 %:1964  % startyear: latest start year
+    for endyear=2024 %-1:2014  % endyear: earliest end year
         if startyear+(thelength-1) < endyear+(thelength-1)
           % dense_station_country: country id of data-dense countries
           dense_station_country={'US','RS','AS','PO','SP','FR','UK','GM','NL','NO','SW',...
@@ -42,7 +45,7 @@ for startyear=1955:1964  % startyear: latest start year
     
     % read ghcnd stations measuring 'PRCP' and with start year <= startyear & end year >= endyear
     [ghcndprcp, pnz, ghcnids, ghcnlats, ghcnlons, years ] = load_ghcnd_prcp(startyear, endyear,...
-        directory, prfolder);
+        directory, prfolder,inventorypath, fnames);
 %     save ([prfolder,'reo_ghcnddailydata_',...
 %         num2str(startyear),num2str(endyear),'.mat'], ...
 %         'ghcndprcp', 'pnz', 'ghcnids', 'ghcnlats', 'ghcnlons', ...
@@ -75,35 +78,35 @@ missrate, period1, period2, years,ghcndprcp, ghcnids,ghcnlats,ghcnlons);
     [], qc_prcp, qcids, qclat, qclon, years);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-minglelist='/share/cliprelabs/observations/ghcnd_all.tar/mingle-list.txt';
+minglelist=minglelistpath;
 [theidnum]=numofsources(minglelist);
 jud=ismember(theidnum(:,1),finalids);
 final_sources=theidnum(jud,:);
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% save latitudes and longitudes of final stations and ghcnd stations
-ncfile5=('/share/cliprelabs/jh2423/P1/dataforplot/stationslatlon.nc');
-
-finallat=finallat(:); finallat=single(finallat);
-finallon=finallon(:); finallon=single(finallon);
-ghcnlats=ghcnlats(:); ghcnlats=single(ghcnlats);
-ghcnlons=ghcnlons(:); ghcnlons=single(ghcnlons);
-
-qcstations=length(finallat);
-nccreate(ncfile5, 'finallat','Dimensions',{'qcstations',qcstations},'DeflateLevel',9);
-nccreate(ncfile5, 'finallon','Dimensions',{'qcstations',qcstations},'DeflateLevel',9);
-ghcnstations=length(ghcnlats);
-nccreate(ncfile5, 'ghcnlats','Dimensions',{'ghcnstations',ghcnstations},'DeflateLevel',9);
-nccreate(ncfile5, 'ghcnlons','Dimensions',{'ghcnstations',ghcnstations},'DeflateLevel',9);
-
-ncwrite(ncfile5, 'finallat', finallat);
-ncwrite(ncfile5, 'finallon', finallon);
-ncwrite(ncfile5, 'ghcnlats', ghcnlats);
-ncwrite(ncfile5, 'ghcnlons', ghcnlons);
-
-ncwriteatt(ncfile5, '/', 'title', 'latitude and longitude of stations');
-% Add global attributes (metadata)
-[ncfile5]=nc_metadata(ncfile5);
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % save latitudes and longitudes of final stations and ghcnd stations
+% ncfile5=('/share/cliprelabs/jh2423/P1/dataforplot/stationslatlon.nc');
+% 
+% finallat=finallat(:); finallat=single(finallat);
+% finallon=finallon(:); finallon=single(finallon);
+% ghcnlats=ghcnlats(:); ghcnlats=single(ghcnlats);
+% ghcnlons=ghcnlons(:); ghcnlons=single(ghcnlons);
+% 
+% qcstations=length(finallat);
+% nccreate(ncfile5, 'finallat','Dimensions',{'qcstations',qcstations},'DeflateLevel',9);
+% nccreate(ncfile5, 'finallon','Dimensions',{'qcstations',qcstations},'DeflateLevel',9);
+% ghcnstations=length(ghcnlats);
+% nccreate(ncfile5, 'ghcnlats','Dimensions',{'ghcnstations',ghcnstations},'DeflateLevel',9);
+% nccreate(ncfile5, 'ghcnlons','Dimensions',{'ghcnstations',ghcnstations},'DeflateLevel',9);
+% 
+% ncwrite(ncfile5, 'finallat', finallat);
+% ncwrite(ncfile5, 'finallon', finallon);
+% ncwrite(ncfile5, 'ghcnlats', ghcnlats);
+% ncwrite(ncfile5, 'ghcnlons', ghcnlons);
+% 
+% ncwriteatt(ncfile5, '/', 'title', 'latitude and longitude of stations');
+% % Add global attributes (metadata)
+% [ncfile5]=nc_metadata(ncfile5);
 
 %% save daily precip series used in the study
 save(['/share/cliprelabs/jh2423/P1/data_process/ghcnd_pr/','thinner_dailypr_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),'_',...
