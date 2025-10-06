@@ -1,5 +1,5 @@
 function [ghcndprcp, pnz, ghcnids, ghcnlats, ghcnlons, ghcnyears ]= load_ghcnd_prcp(startyear, endyear,...
-    directory, folder)
+    directory, folder, inventorypath, fnamesfile)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 4 September 2025, Jingya Han, Cornell University, Ithaca, NY. jh2423@cornell.edu
 % Altered from https://github.com/apendergrass/read_ghcnd
@@ -11,7 +11,8 @@ function [ghcndprcp, pnz, ghcnids, ghcnlats, ghcnlons, ghcnyears ]= load_ghcnd_p
 % endyear: earliest end year
 % directory: path of the .dly data
 % folder: save all outputs in this folder
-%
+% inventorypath: path of the inventory file
+% fnamesfile: path of the all file names file
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % outputs
 % ghcndprcp: daily precip from ghcnd [days * stations]
@@ -24,8 +25,8 @@ function [ghcndprcp, pnz, ghcnids, ghcnlats, ghcnlons, ghcnyears ]= load_ghcnd_p
 
 %% check downloaded data
 % generate ghcnd_all_fnames.txt (all ghcnd data that are actally available to download)
-files=dir([directory,'ghcnd_all/*.dly']);
-fileID=fopen('/share/cliprelabs/observations/ghcnd_all.tar/ghcnd_all_fnames.txt','w');
+files=dir([directory,'*.dly']);
+fileID=fopen(fnamesfile,'w');
 
 for iname=1:length(files)
     thename=files(iname).name;
@@ -46,7 +47,6 @@ fileID=fopen([folder,'read_ghcnd_all_log_',num2str(startyear),num2str(endyear),'
 fprintf(fileID,'%34s\n','******Missing GHCND_all .dly files******');
 
 %% read station information from inventory file
-inventorypath='/share/cliprelabs/observations/ghcnd_all.tar/'
 ghcninv=importdata([inventorypath 'ghcnd-inventory.txt']);
 %         data: [nstationx2 double]
 %     textdata: {nstationx4 cell}
@@ -78,7 +78,7 @@ for i=1:length(goodones)
 end
 
 % check to make sure we really have all these files
-fnames=importdata('/share/cliprelabs/observations/ghcnd_all.tar/ghcnd_all_fnames.txt'); 
+fnames=importdata(fnamesfile); 
 for i=1:(size(fnames,1))
     t=textscan(fnames{i},'%11c %s');
     fileids{i}=t{1};
