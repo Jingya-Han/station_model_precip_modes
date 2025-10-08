@@ -7,7 +7,7 @@
 clear
 clc
 thelength=30; % epoch length
-missrate=19; % set acceptable miss rate
+missrate=20; % set acceptable miss rate
 startyear=1955; % startyear: latest start year
 endyear=2023; % endyear: earliest end year
 period1=startyear:(startyear+thelength-1); % early epoch
@@ -49,7 +49,7 @@ GISS_path='/share/cliprelabs/jh2423/P1/data_process/tas/GLB.Ts+dSST.csv';
     (oldppdf1(:), oldpamt1(:), oldppdf2(:), oldpamt2(:),dt_noaa,oldbincrates);
 
 % save as .nc file
-ncfile1=([path, 'way0_stations_19%miss_',...
+ncfile1=([path, 'way0_stations_',num2str(missrate),'%miss_',...
     num2str(period1(1)),num2str(period1(end)),...
     '_',num2str(period2(1)),num2str(period2(end)),'.nc']);
 oldbincrates=oldbincrates(:); oldbincrates=single(oldbincrates);
@@ -82,11 +82,11 @@ save( [path,'way1_stations_',num2str(missrate),'%miss_',num2str(period1(1)),num2
     'global_a_o','global_b_o');
 
 % save as nc file----------------------------------------------------------
-clearvars -except period1 period2 path prcp1 prcp2 bincrates finalids
-filename=[path,'way1_stations_19%miss_',num2str(period1(1)),num2str(period1(end)),...
+% clearvars -except period1 period2 path prcp1 prcp2 bincrates finalids finalsta_prcp years
+filename=[path,'way1_stations_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),...
     '_',num2str(period2(1)),num2str(period2(end)),'.mat'];
 fileinfo=matfile(filename);
-ncfile=([path,'way1_stations_19%miss_',num2str(period1(1)),num2str(period1(end)),...
+ncfile=([path,'way1_stations_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),...
     '_',num2str(period2(1)),num2str(period2(end)),'.nc']);
 vars = who(fileinfo);
 for i = 1:length(vars) % Loop through variables and load them one by one
@@ -103,7 +103,8 @@ ncwriteatt(ncfile, '/', 'title', 'modes and distributions over aggregation of st
 [ncfile]=nc_metadata(ncfile);
 
 %% smoothed & raw precip amount distribution at individual station
-clearvars -except period1 period2 path bincrates finalids dt_noaa thelength missrate
+
+clearvars -except years period1 period2 path bincrates finalsta_prcp finalids dt_noaa thelength missrate years
 ks_ppdf1s=zeros(length(finalids),length(bincrates));
 ks_ppdf2s=ks_ppdf1s; ks_pamt1s=ks_ppdf1s; ks_pamt2s=ks_ppdf1s; 
 shiftincerr_way1=nan(length(finalids),3); % col1:shift; col2:inc; col3:err
@@ -139,10 +140,10 @@ save([path,'stations_modes_spatial_dist_',num2str(missrate),'%miss_',num2str(per
     'all_a_o','all_b_o','dt_noaa');
 
 % save as nc file----------------------------------------------------------
-filename=[path,'stations_modes_spatial_dist_19%miss_',num2str(period1(1)),num2str(period1(end)),...
+filename=[path,'stations_modes_spatial_dist_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),...
     '_',num2str(period2(1)),num2str(period2(end)),'.mat'];
 fileinfo=matfile(filename);
-ncfile=([path,'stations_modes_spatial_dist_19%miss_',num2str(period1(1)),num2str(period1(end)),...
+ncfile=([path,'stations_modes_spatial_dist_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),...
     '_',num2str(period2(1)),num2str(period2(end)),'.nc']);
 vars = who(fileinfo);
 for i = 1:length(vars) % Loop through variables and load them one by one
@@ -167,10 +168,9 @@ ncwriteatt(ncfile, '/', 'title', 'spatial distribution for magnitudes of modes')
 % For epoch length of 10 years, users need to change the values of the
 % follwing variables as:
 % thelength=10; startyear=1980:5:1995; endyear=2014:-5:1999
-clear
-clc
+
 path='/share/cliprelabs/jh2423/P1/dataforplot/'; % the path saved data for plotting
-missrate=19; % set acceptable miss rate 
+missrate=20; % set acceptable miss rate 
 thelength=30;
 for startyear= 1955:1964 % startyear: latest start year
     for endyear=2023:-1:2014 % endyear: earliest end year
@@ -188,22 +188,25 @@ for startyear= 1955:1964 % startyear: latest start year
 
 
 % annual temperature anomaly from Noaa, Berkeley earth, GISTEMP v4
-[dt_noaa,dt_berkeley, dt_gistemp ]=obs_temp_anomaly(period1,period2);
+noaa_path='/share/cliprelabs/jh2423/P1/data_process/tas/aravg.ann.land_ocean.90S.90N.v6.0.0.202401.asc.txt';
+berkeley_path='/share/cliprelabs/jh2423/P1/data_process/tas/global_land_and_ocean_annual_temp.txt';
+GISS_path='/share/cliprelabs/jh2423/P1/data_process/tas/GLB.Ts+dSST.csv';
+[dt_noaa,dt_berkeley, dt_gistemp ]=obs_temp_anomaly(noaa_path,berkeley_path, GISS_path,period1,period2);
 
 
-% %% bootstrap to get uncertainty range
-% [prcp1, prcp2]=extract_data(finalsta_prcp,years,period1,period2);
-% tic
-% [UR_pamt1, UR_ppdf1, UR_dpamt1, UR_pamtshiftinc, UR_dppdf1, UR_ppdfshiftinc,UR_dfreq, UR_dfreqshiftinc,...
-%     UR_shift, UR_inc, UR_err, UR_a_o, UR_b_o]=...
-%     bootstrap_UR(prcp1, prcp2,500,dt_noaa);
-% toc
-% UR_a_o = UR_a_o./dt_noaa;
-% UR_b_o = UR_b_o./dt_noaa;
-% save([folder,'stations_uncertainty_range_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),'_',...
-%     num2str(period2(1)),num2str(period2(end)),'.mat'],'UR_pamt1', 'UR_ppdf1', 'UR_dpamt1', 'UR_pamtshiftinc', 'UR_dppdf1',...
-%     'UR_ppdfshiftinc','UR_dfreq', 'UR_dfreqshiftinc','UR_shift', 'UR_inc', 'UR_err', 'UR_a_o', 'UR_b_o');
-% clear qc_prcp pnz
+%% bootstrap to get uncertainty range
+[prcp1, prcp2]=extract_data(finalsta_prcp,years,period1,period2);
+tic
+[UR_pamt1, UR_ppdf1, UR_dpamt1, UR_pamtshiftinc, UR_dppdf1, UR_ppdfshiftinc,UR_dfreq, UR_dfreqshiftinc,...
+    UR_shift, UR_inc, UR_err, UR_a_o, UR_b_o]=...
+    bootstrap_UR(prcp1, prcp2,500,dt_noaa);
+toc
+UR_a_o = UR_a_o./dt_noaa;
+UR_b_o = UR_b_o./dt_noaa;
+save([folder,'stations_uncertainty_range_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),'_',...
+    num2str(period2(1)),num2str(period2(end)),'.mat'],'UR_pamt1', 'UR_ppdf1', 'UR_dpamt1', 'UR_pamtshiftinc', 'UR_dppdf1',...
+    'UR_ppdfshiftinc','UR_dfreq', 'UR_dfreqshiftinc','UR_shift', 'UR_inc', 'UR_err', 'UR_a_o', 'UR_b_o');
+clear qc_prcp pnz
 
 
 %% add shi inc err of aggregated stations for each epoch pair
