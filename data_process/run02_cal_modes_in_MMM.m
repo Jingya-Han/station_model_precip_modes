@@ -7,7 +7,7 @@
 clear
 clc
 thelength=30; % epoch length
-missrate=19; % set acceptable miss rate
+missrate=20; % set acceptable miss rate
 startyear=1955; % startyear: latest start year
 endyear=2023; % endyear: earliest end year
 period1=startyear:(startyear+thelength-1); % early epoch
@@ -75,10 +75,10 @@ save( [path,'way1_MMM_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(p
     'mmm_pamtshiftinc','mmm_dppdf1','mmm_ppdfshift','mmm_ppdfinc','mmm_ppdfshiftinc','mmm_dfreq','mmm_dfreqshift','mmm_dfreqinc',...
     'mmm_dfreqshiftinc','MMM_a_o','MMM_b_o','BINCRATES','dt');
 % save as .nc file
-filename=[path,'way1_MMM_19%miss_',num2str(period1(1)),num2str(period1(end)),...
+filename=[path,'way1_MMM_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),...
     '_',num2str(period2(1)),num2str(period2(end)),'.mat'];
 fileinfo=matfile(filename);
-ncfile=([path,'/way1_MMM_19%miss_',num2str(period1(1)),num2str(period1(end)),...
+ncfile=([path,'/way1_MMM_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),...
     '_',num2str(period2(1)),num2str(period2(end)),'.nc']);
 vars = who(fileinfo);
 for i = 1:length(vars) % Loop through variables and load them one by one
@@ -119,10 +119,10 @@ end
 save([path,'cmip6_modes_spatial_dist_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),'_',...
     num2str(period2(1)),num2str(period2(end)),'.mat'],'gridinc','gridshift','grid_a_o','grid_b_o');
 
-filename=[path,'cmip6_modes_spatial_dist_19%miss_',num2str(period1(1)),num2str(period1(end)),...
+filename=[path,'cmip6_modes_spatial_dist_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),...
     '_',num2str(period2(1)),num2str(period2(end)),'.mat'];
 fileinfo=matfile(filename);
-ncfile=([path,'cmip6_modes_spatial_dist_19%miss_',num2str(period1(1)),num2str(period1(end)),...
+ncfile=([path,'cmip6_modes_spatial_dist_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),...
     '_',num2str(period2(1)),num2str(period2(end)),'.nc']);
 vars = who(fileinfo);
 for i = 1:length(vars) % Loop through variables and load them one by one
