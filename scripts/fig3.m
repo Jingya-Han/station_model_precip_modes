@@ -4,6 +4,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clear
+missrate=20;
+path='/share/cliprelabs/jh2423/P1/dataforplot/';
+
 f=figure;
 clf;
 set(gcf,'units','centimeters','paperpositionmode','auto');
@@ -18,10 +21,10 @@ left+0.27 down-he-0.015 width he;
 0.13+0.27 down-2.5*(he) .19 .23];
 %% station
 
-shiftincerr_way1=ncread('dataforplot/stations_modes_spatial_dist_19%miss_19551984_19942023.nc',...
+shiftincerr_way1=ncread([path,'stations_modes_spatial_dist_',num2str(missrate),'%miss_19551984_19942023.nc'],...
     'shiftincerr_way1');
-finallat=ncread('dataforplot/stationslatlon.nc','finallat');
-finallon=ncread('dataforplot/stationslatlon.nc','finallon');
+finallat=ncread([path,'stationslatlon.nc'],'finallat');
+finallon=ncread([path,'stationslatlon.nc'],'finallon');
 
 % increase
 cdata=othercolor('RdBu10',8);
@@ -54,8 +57,8 @@ ax_stations=gca;
 
 %% cmip6
 
-gridinc=ncread(['dataforplot/cmip6_modes_spatial_dist_19%miss_19551984_19942023.nc'],'gridinc');
-gridshift=ncread(['dataforplot/cmip6_modes_spatial_dist_19%miss_19551984_19942023.nc'],'gridshift');
+gridinc=ncread([path,'cmip6_modes_spatial_dist_',num2str(missrate),'%miss_19551984_19942023.nc'],'gridinc');
+gridshift=ncread([path,'cmip6_modes_spatial_dist_',num2str(missrate),'%miss_19551984_19942023.nc'],'gridshift');
 
 % increase
 s=subplot(3,2,3); s.Position=poss(3,:);
@@ -153,6 +156,6 @@ hc.FontSize = 7;
 cbarrow;
 hold on;
 
-% savefig('/share/cliprelabs/jh2423/modesofchange_system/results_01-Feb-2025 15:39:58/figs_19%miss_19551984_19942023/v2/Fig3.fig');
-% exportgraphics(gcf,"/share/cliprelabs/jh2423/modesofchange_system/results_01-Feb-2025 15:39:58/figs_19%miss_19551984_19942023/v2/Fig3.png",...
-%     'Resolution', 300);
+savefig('/share/cliprelabs/jh2423/P1/figures/Fig3.fig');
+exportgraphics(gcf,"/share/cliprelabs/jh2423/P1/figures//Fig3.png",...
+    'Resolution', 300);
