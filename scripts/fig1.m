@@ -6,30 +6,32 @@
 clear
 period1=1955:1984;
 period2=1994:2023;
-oldbincrates=ncread(['dataforplot/way0_stations_19%miss_',num2str(period1(1)),num2str(period1(end)),...
+missrate=20;
+path='/share/cliprelabs/jh2423/P1/dataforplot/';
+oldbincrates=ncread([path,'way0_stations_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),...
     '_',num2str(period2(1)),num2str(period2(end)),'.nc'],'oldbincrates');
-oldpamt1=ncread(['dataforplot/way0_stations_19%miss_',num2str(period1(1)),num2str(period1(end)),...
+oldpamt1=ncread([path,'way0_stations_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),...
     '_',num2str(period2(1)),num2str(period2(end)),'.nc'],'oldpamt1');
 
-bincrates=ncread(['dataforplot/way1_stations_19%miss_',num2str(period1(1)),num2str(period1(end)),...
+bincrates=ncread([path,'way1_stations_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),...
     '_',num2str(period2(1)),num2str(period2(end)),'.nc'],'bincrates');
-kdepamt1=ncread(['dataforplot/way1_stations_19%miss_',num2str(period1(1)),num2str(period1(end)),...
+kdepamt1=ncread([path,'way1_stations_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),...
     '_',num2str(period2(1)),num2str(period2(end)),'.nc'],'kdepamt1');
 
-oldBINCRATES=ncread(['dataforplot/way0_MMM_19%miss_',num2str(period1(1)),num2str(period1(end)),...
-    '_',num2str(period2(1)),num2str(period2(end)),'.nc'],'BINCRATES');
-oldMMMpamt1=ncread(['dataforplot/way0_MMM_19%miss_',num2str(period1(1)),num2str(period1(end)),...
+oldBINCRATES=ncread([path,'way0_MMM_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),...
+    '_',num2str(period2(1)),num2str(period2(end)),'.nc'],'oldBINCRATES');
+oldMMMpamt1=ncread([path,'way0_MMM_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),...
     '_',num2str(period2(1)),num2str(period2(end)),'.nc'],'oldMMMpamt1');
 
-KDEMMMpamt1=ncread(['dataforplot/way1_MMM_19%miss_',num2str(period1(1)),num2str(period1(end)),...
+KDEMMMpamt1=ncread([path,'way1_MMM_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),...
     '_',num2str(period2(1)),num2str(period2(end)),'.nc'],'KDEMMMpamt1');
-BINCRATES=ncread(['dataforplot/way1_MMM_19%miss_',num2str(period1(1)),num2str(period1(end)),...
+BINCRATES=ncread([path,'way1_MMM_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),...
     '_',num2str(period2(1)),num2str(period2(end)),'.nc'],'BINCRATES');
 
-finallat=ncread('dataforplot/stationslatlon.nc','finallat');
-finallon=ncread('dataforplot/stationslatlon.nc','finallon');
-ghcnlats=ncread('dataforplot/stationslatlon.nc','ghcnlats');
-ghcnlons=ncread('dataforplot/stationslatlon.nc','ghcnlons');
+finallat=ncread([path,'stationslatlon.nc'],'finallat');
+finallon=ncread([path,'stationslatlon.nc'],'finallon');
+ghcnlats=ncread([path,'stationslatlon.nc'],'ghcnlats');
+ghcnlons=ncread([path,'stationslatlon.nc'],'ghcnlons');
 
 
 f=figure; clf
@@ -58,8 +60,8 @@ pos=get(gca,'Position');
 h_at=axes('Position',[0.04 0.7 0.06 0.03]);
 scatter(1.5,1,50,'o','filled','MarkerFaceColor',[222 184 135]/255,'LineWidth',1); hold on;
 scatter(1.5,2,100,'o','filled','MarkerFaceColor',[147 112 219]/255,'LineWidth',1); hold on;
-text(2,1,'GHCNd','FontName','Arial','fontsize',9');
-text(2,2,'Quality-controlled','FontName','Arial','fontsize',9');
+text(2,1,'All GHCNd stations','FontName','Arial','fontsize',9');
+text(2,2,'Included stations','FontName','Arial','fontsize',9');
 axis off;
 hold on;
 
@@ -89,10 +91,10 @@ xlim([0 142]);
 ylim([0 0.065]);
 a=axis;
 text(6,a(4)*0.9,'b','FontName','Arial','fontsize',9,'FontWeight','bold');
-xlabel('Rain rate (mm d ^-^1)','FontName','Arial','fontsize',9);
+xlabel('Precipitation rate (mm d ^-^1)','FontName','Arial','fontsize',9);
 ylabel('Precipitation amount (mm d ^-^1)','FontName','Arial','fontsize',9);
 
-% savefig('/share/cliprelabs/jh2423/modesofchange_system/results_01-Feb-2025 15:39:58/figs_19%miss_19551984_19942023/v2/Fig1.fig');
-% exportgraphics(gcf,"/share/cliprelabs/jh2423/modesofchange_system/results_01-Feb-2025 15:39:58/figs_19%miss_19551984_19942023/v2/Fig1.png",...
+% savefig('/share/cliprelabs/jh2423/P1/figures/Fig1.fig');
+% exportgraphics(gcf,"/share/cliprelabs/jh2423/P1/figures/Fig1.png",...
 %     'Resolution', 300);
 
