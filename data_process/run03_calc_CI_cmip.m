@@ -6,7 +6,6 @@
 % You will need to change the epoch length, start year, end year to get
 % results for different endpoints and epoch length.
 
-
 clear
 folder='/share/cliprelabs/jh2423/P1/dataforplot/'; % the path saved data for plotting
 
@@ -16,8 +15,7 @@ folder='/share/cliprelabs/jh2423/P1/dataforplot/'; % the path saved data for plo
 %%%%%%%%%%%%%%%%%%%%%%%%% ghcnd data %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % read all raw ghcnd station data with start year <= startyear and
 % end year >= endyear and plot shift-inc modes
-directory='/share/cliprelabs/observations/ghcnd_all.tar/'
-missrate=19; % set acceptable miss rate 
+missrate=20; % set acceptable miss rate 
 thelength=30;
 
 for startyear=1955:1:1964 % startyear: latest start year
@@ -92,14 +90,14 @@ save([folder,'cmip6_uncertainty_range_',num2str(missrate),'%miss_',num2str(perio
     end
 end
 
-% save as .nc files
+%% save all 30-years pair uncertainty range in one netcdf file
 clear
 thelength = 30;
 all_startyears=1955:1964; % startyear: latest start year
 all_endyears=2014:2023; % endyear: earliest end year
 startycount = 0; 
 count = 0;
-ncfile = [folder,'cmip6_uncertainty_range_19%miss_',num2str(thelength),'yrs.nc']; % Define output NetCDF file
+ncfile = [folder,'cmip6_uncertainty_range_',num2str(missrate),'%miss_',num2str(thelength),'yrs.nc']; % Define output NetCDF file
 if isfile(ncfile)
     delete(ncfile);
 end
@@ -114,7 +112,7 @@ for startyear = all_startyears
         period2 = (endyear-thelength+1):endyear;
 
         % Load .mat file
-        matfile = [folder,'cmip6_uncertainty_range_19%miss_', ...
+        matfile = [folder,'cmip6_uncertainty_range_',num2str(missrate),'%miss_', ...
             num2str(period1(1)), num2str(period1(end)), '_', ...
             num2str(period2(1)), num2str(period2(end)), '.mat'];
         S = load(matfile); % contains UR_inc and UR_shift
@@ -135,12 +133,34 @@ for startyear = all_startyears
     end
 end
 
+%% 19551984_19942023
+clear
+period1=1955:1984;
+period2=1994:2023;
+missrate=20;
+path='/share/cliprelabs/jh2423/P1/dataforplot/'; % the path saved data for plotting
+filename=[path,'cmip6_uncertainty_range_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),...
+    '_',num2str(period2(1)),num2str(period2(end)),'.mat'];
+fileinfo=matfile(filename);
+ncfile=([path,'cmip6_uncertainty_range_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),...
+    '_',num2str(period2(1)),num2str(period2(end)),'.nc']);
+vars = who(fileinfo);
+for i = 1:length(vars) % Loop through variables and load them one by one
+    varname = vars{i};       
+    tmp = load(filename, varname); % Load the variable into current workspace  
+    data = tmp.(varname); % Extract the variable by its name
+    data = single(data);
+    dim=size(data);
+    nccreate(ncfile, varname,'Dimensions',{[varname,'_row'], dim(1),[varname,'_col'],dim(2)});
+    ncwrite(ncfile, varname,data);    
+    
+end
+
 
 %% cal Magnitudes of increase mode and shift mode for multi-ensemble mean of each CMIP6 model.
 clear
 folder='/share/cliprelabs/jh2423/P1/dataforplot/'; % the path saved data for plotting
-directory='/share/cliprelabs/observations/ghcnd_all.tar/'
-missrate=19; % set acceptable miss rate 
+missrate=20; % set acceptable miss rate 
 thelength=30;
 
 for startyear=1955%:1:1964 % startyear: latest start year
@@ -176,7 +196,8 @@ for startyear=1955%:1:1964 % startyear: latest start year
         modes(im,4)=mean(UR_err(count+1:count+ensemble_length,:));
         count=count+ensemble_length;
      end
-
+        save([folder,'modes_cmip6_each_model_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),'_',...
+             num2str(period2(1)),num2str(period2(end)),'.mat'],'modes');
     end
 end
 
