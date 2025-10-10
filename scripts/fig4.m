@@ -5,18 +5,21 @@
 
 clear
 % preliminary items
-mmm_dfreq=ncread('dataforplot/way1_MMM_19%miss_19551984_19942023.nc','mmm_dfreq');
-mmm_dfreqshiftinc=ncread('dataforplot/way1_MMM_19%miss_19551984_19942023.nc','mmm_dfreqshiftinc');
-cmip_dfreq=ncread('dataforplot/cmip6_uncertainty_range_19%miss_19551984_19942023.nc','UR_dfreq');
-cmip_dfreqshiftinc=ncread('dataforplot/cmip6_uncertainty_range_19%miss_19551984_19942023.nc','UR_dfreqshiftinc');
+missrate=20;
+path='/share/cliprelabs/jh2423/P1/dataforplot/';
 
-bincrates=ncread('dataforplot/way1_stations_19%miss_19551984_19942023.nc','bincrates');
+mmm_dfreq=ncread([path,'way1_MMM_',num2str(missrate),'%miss_19551984_19942023.nc'],'mmm_dfreq');
+mmm_dfreqshiftinc=ncread([path,'way1_MMM_',num2str(missrate),'%miss_19551984_19942023.nc'],'mmm_dfreqshiftinc');
+cmip_dfreq=ncread([path,'cmip6_uncertainty_range_',num2str(missrate),'%miss_19551984_19942023.nc'],'UR_dfreq');
+cmip_dfreqshiftinc=ncread([path,'cmip6_uncertainty_range_',num2str(missrate),'%miss_19551984_19942023.nc'],'UR_dfreqshiftinc');
+
+bincrates=ncread([path,'way1_stations_',num2str(missrate),'%miss_19551984_19942023.nc'],'bincrates');
 db=(bincrates(3)-bincrates(2))./bincrates(2);% bin width
-dfreq=ncread('dataforplot/way1_stations_19%miss_19551984_19942023.nc','dfreq');
-dfreqshiftinc=ncread('dataforplot/way1_stations_19%miss_19551984_19942023.nc','dfreqshiftinc');
+dfreq=ncread([path,'way1_stations_',num2str(missrate),'%miss_19551984_19942023.nc'],'dfreq');
+dfreqshiftinc=ncread([path,'way1_stations_',num2str(missrate),'%miss_19551984_19942023.nc'],'dfreqshiftinc');
 
-UR_dfreq=ncread('dataforplot/stations_uncertainty_range_19%miss_19551984_19942023.nc','UR_dfreq');
-UR_dfreqshiftinc=ncread('dataforplot/stations_uncertainty_range_19%miss_19551984_19942023.nc','UR_dfreqshiftinc');
+UR_dfreq=ncread([path,'stations_uncertainty_range_',num2str(missrate),'%miss_19551984_19942023.nc'],'UR_dfreq');
+UR_dfreqshiftinc=ncread([path,'stations_uncertainty_range_',num2str(missrate),'%miss_19551984_19942023.nc'],'UR_dfreqshiftinc');
 
 % colors 
 stationobscolor=[0 0 0]/255;
@@ -62,9 +65,9 @@ hold on;
 %plot the line
 drpercentileplot(mmm_dfreq,MMMsimcolor,mmm_dfreqshiftinc,MMMspicolor,pbinm,xticks99);
 xlim([2 length(pbinm)])
-ylabel('\DeltaRain rate (%/K)','FontName','Arial','FontSize',9);
+ylabel('\DeltaPrecipitation rate (%/K)','FontName','Arial','FontSize',9);
 text(3,22,'a','FontWeight','bold','FontName','Arial','FontSize',9);
-legend('','','Model','Increase + Shift','FontName','Arial','FontSize',9); legend('boxoff');
+legend('','','Climate models','Increase + Shift modes','FontName','Arial','FontSize',9); legend('boxoff');
 
 s=subplot(2,2,2); s.Position=poss(2,:);
 % Compute 95% confidence intervals
@@ -84,13 +87,14 @@ hold on;
 %plot the line
 drpercentileplot(dfreq,stationobscolor,dfreqshiftinc,stationspicolor,pbinm,xticks99);
 xlim([5 length(pbinm)])
-ylabel('\DeltaRain rate (%/K)','FontName','Arial','FontSize',9);
+ylabel('\DeltaPrecipitation rate (%/K)','FontName','Arial','FontSize',9);
 text(5.8,22,'b','FontWeight','bold','FontName','Arial','FontSize',9);
-legend('','','Station','Increase + Shift','FontName','Arial','FontSize',9); legend('boxoff');
+legend('','','Station observations','Increase + Shift modes','FontName','Arial','FontSize',9); legend('boxoff');
 
-% savefig('/share/cliprelabs/jh2423/modesofchange_system/results_01-Feb-2025 15:39:58/figs_19%miss_19551984_19942023/v2/Fig4.fig');
-% exportgraphics(gcf,"/share/cliprelabs/jh2423/modesofchange_system/results_01-Feb-2025 15:39:58/figs_19%miss_19551984_19942023/v2/Fig4.png",...
-%     'Resolution', 300);
+savefig('/share/cliprelabs/jh2423/P1/figures/Fig4.fig');
+exportgraphics(gcf,"/share/cliprelabs/jh2423/P1/figures/Fig4.png",...
+    'Resolution', 300);
+
 %% plotting functions 
     
 
