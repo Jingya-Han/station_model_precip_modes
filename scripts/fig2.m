@@ -74,7 +74,7 @@ set(gcf,'position',[1 1 18 15]);
 set(f,'Color','white');
 left=0.07; down= .55;width= .42;he= .4;
 poss=[left down width he;
-left+0.48 down width he;
+left+0.5 down width he;
 left+0.2 down-he-0.08 width he];
 
 % rain amount 
@@ -100,7 +100,7 @@ l1 = legend([h3(1) h3(2) h1 h2], ['Station observations' newline], ...
      '95% CI (Station)','95% CI (Increase+Shift modes)','FontName','Arial','FontSize',9);
 set(l1,'box','off','Position',[0.14 0.75 0.19 0.2]); hold on;
 text(21,0.085,['Error = ' num2str(err_w1,2),'%'],'FontName','Arial','FontSize',9);
-ylabel('\DeltaP (mm d^-^1 K^-^1)','FontName','Arial','FontSize',9);% If you wanted to be precise, the y-axis label is in mm/d/K/\Delta bin
+ylabel('\DeltaP (mm d ^-^1 K ^-^1)','FontName','Arial','FontSize',9);% If you wanted to be precise, the y-axis label is in mm/d/K/\Delta bin
 text(8,0.23,'a','FontName','Arial','FontSize',9,'FontWeight','bold');
 
 s=subplot(2,2,2); s.Position=poss(2,:);
@@ -124,7 +124,7 @@ l1 = legend([h3(1) h3(2) h1 h2], ['Climate models' newline], ...
      '95% CI (Model)','95% CI (Increase+Shift modes)','FontName','Arial','FontSize',9);
 set(l1,'box','off','Position',[0.2+width 0.75 0.19 0.2]);
 text(21,0.085,['Error = ' num2str(mmmerr_w1,2),'%'],'FontName','Arial','FontSize',9);
-ylabel('\DeltaP (mm d^-^1 K^-^1)','FontName','Arial','FontSize',9);% If you wanted to be precise, the y-axis label is in mm/d/K/\Delta bin
+ylabel('\DeltaP (mm d ^-^1 K ^-^1)','FontName','Arial','FontSize',9);% If you wanted to be precise, the y-axis label is in mm/d/K/\Delta bin
 text(8,0.23,'b','FontWeight','bold','FontSize',9);
 
 %% plot the box plots
@@ -218,7 +218,7 @@ set(gca,'xtick',[1.5 3.5],'xticklabel',{'Increase mode', 'Shift mode'},...
 
 xlim([0 5]);
 ylim([-1.5 18]);
-ylabel('Magnitude of modes (% K^-^1)', 'fontsize',9,'FontName','Arial');
+ylabel('Magnitude of modes (% K ^-^1)', 'fontsize',9,'FontName','Arial');
 box on;
 text(0.2,16,'c','FontWeight','bold','fontsize',9,'FontName','Arial');
 legend('','Station observations','','Climate models','','','','','fontsize',9,'FontName','Arial'); legend('boxoff');
@@ -234,7 +234,7 @@ exportgraphics(gcf,"/share/cliprelabs/jh2423/P1/figures/Fig2.png",...
         % different colors.  
         nb=length(dpamt1);
         p=plot(1:nb,dpamt1,'-k',1:nb,dpamt2,'-r');
-        set(gca,'fontsize',7,'FontName','Arial');
+        set(gca,'fontsize',8,'FontName','Arial');
         set(p(1),'color',color1)
         set(p(2),'color',color2)
         set(p,'linewidth',1.2)
@@ -279,7 +279,7 @@ exportgraphics(gcf,"/share/cliprelabs/jh2423/P1/figures/Fig2.png",...
         % different colors.  
         
         p=plot(1:length(pbinm),dfreq1,'-k',1:length(pbinm),dfreq2,'-m');
-        set(gca,'fontsize',5,'FontName','Arial');
+        set(gca,'fontsize',8,'FontName','Arial');
         set(p(1),'color',color1)
         set(p(2),'color',color2)
         set(p,'linewidth',1.2)
