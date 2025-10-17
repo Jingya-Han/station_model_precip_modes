@@ -85,8 +85,8 @@ legend({'Station-Raw','Station-Smoothed','Model-Raw','Model-Smoothed'},...
     'Position',[0.2 0.42 0.1 0.05],'FontName','Arial','fontsize',9);
 legend('boxoff')
 
-set(gca,'xtick',xticks,'xticklabel',xtickratesp,'fontsize',7,'XTickLabelRotation',0,'FontName','Arial');
-set(gca,'fontsize',7,'FontName','Arial');
+set(gca,'xtick',xticks,'xticklabel',xtickratesp,'fontsize',8,'XTickLabelRotation',0,'FontName','Arial');
+set(gca,'fontsize',8,'FontName','Arial');
 xlim([0 142]);
 ylim([0 0.065]);
 a=axis;
@@ -94,7 +94,7 @@ text(6,a(4)*0.9,'b','FontName','Arial','fontsize',9,'FontWeight','bold');
 xlabel('Precipitation rate (mm d ^-^1)','FontName','Arial','fontsize',9);
 ylabel('Precipitation amount (mm d ^-^1)','FontName','Arial','fontsize',9);
 
-% savefig('/share/cliprelabs/jh2423/P1/figures/Fig1.fig');
-% exportgraphics(gcf,"/share/cliprelabs/jh2423/P1/figures/Fig1.png",...
-%     'Resolution', 300);
+savefig('/share/cliprelabs/jh2423/P1/figures/Fig1.fig');
+exportgraphics(gcf,"/share/cliprelabs/jh2423/P1/figures/Fig1.png",...
+    'Resolution', 300);
 
