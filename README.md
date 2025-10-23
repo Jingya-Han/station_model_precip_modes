@@ -6,5 +6,6 @@ The repository contains three folders:
 * `dataforplot/`, where the final data used to create the figures is stored. The format of the data is netCDF. Intermediate processed data is not stored in this repo due to its large size, but feel free to contact me to organize a data transfer. The smoothed precipitation amount distributions with uncertainty estimates for stations and for co-located grid points in CMIP6 models are available at (insert doi!!!!).
 * `figures/`, where .pdf and .png outputs for the main figures from the scripts are stored.
 * `scripts/`, which contains the ` matlab ` code used to generate the figures.
+* `2024/`, which contains updated figure 1 and figure 2 with data in 2024.
 
 For any questions about the code or requests for data, please contact jh2423(at)cornell(dot)edu.
