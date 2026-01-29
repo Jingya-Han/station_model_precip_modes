@@ -12,6 +12,7 @@
 %($tar -xvf ghcnd_all.tar.gz -C /path/to/destination/)
 % 2) download ghcnd-inventory.txt into the same folder
 % 3) download mingle-list.txt into the same folder
+% 4) ghcnd-stations.txt into the same folder
 
 %% load dly format of ghcnd data (epoch length = 30 yrs, )
 % read all raw ghcnd station data with start year <= startyear and
