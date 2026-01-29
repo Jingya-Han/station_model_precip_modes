@@ -5,7 +5,7 @@
 
 clear
 period1=1955:1984;
-period2=1994:2023;
+period2=1994:2023; %1995:2024;
 missrate=20;
 path='/share/cliprelabs/jh2423/P1/dataforplot/';
 oldbincrates=ncread([path,'way0_stations_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),...
