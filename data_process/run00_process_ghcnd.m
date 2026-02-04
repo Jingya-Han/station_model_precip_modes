@@ -37,7 +37,7 @@ ghcnstationsfile='/share/cliprelabs/observations/ghcnd_backup/ghcn_daily_data_20
 
 for startyear=1955:1964 % startyear: latest start year
     for endyear=2023:-1:2014 % endyear: earliest end year
-        if startyear+(thelength-1) < endyear+(thelength-1)
+        if startyear+(thelength-1) < endyear-(thelength-1)
           % dense_station_country: country id of data-dense countries
           dense_station_country={'US','RS','AS','PO','SP','FR','UK','GM','NL','NO','SW',...
     'EN','BO','IT','AU','RO','HU'}; 
