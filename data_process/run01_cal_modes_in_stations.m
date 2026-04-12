@@ -35,8 +35,13 @@ GISS_path='/share/cliprelabs/jh2423/P1/data_process/tas/GLB.Ts+dSST.csv';
 [prcp1, prcp2]=extract_data(finalsta_prcp,years,period1,period2);
 
 % make smoothed precip distributions over stations
+% make smoothed precip distributions over stations
+% nbin: the smoother, controls the smoothness of distribution for *one* station
+% mbin: the smoother, controls the smoothness of distribution for *multiple* stations
+nbin=5;
+mbin=3;
 [kdeppdf1, kdepamt1, kdeppdf2, kdepamt2, bincrates, binl, binr]=...
-    KDE_makeraindist_i_station(prcp1, prcp2); 
+    KDE_makeraindist_i_station(prcp1, prcp2,nbin,mbin); 
 
 % make raw precip distributions over stations
 [oldppdf1, oldpamt1, oldppdf2, oldpamt2, oldbincrates, ~, ~]=...
