@@ -1,11 +1,13 @@
 function [ppdf1, pamt1, ppdf2, pamt2, bincrates, binl, binr]=...
-    KDE_makeraindist_i_station(prcp1,prcp2)
+    KDE_makeraindist_i_station(prcp1,prcp2,nbin,mbin)
 % 4 September 2025, Jingya Han, Cornell University, Ithaca, NY. jh2423@cornell.edu
 % make smoothed precip distributions over stations
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % inputs
 % prcp1: all ghcn daily precipitation data in period 1 (dimensions=[days stations])
 % prcp2: all ghcn daily precipitation data in period 2 (dimensions=[days stations])
+% nbin: the smoother (bandwidth), controls the smoothness of distribution for *one* station
+% mbin: the smoother (bandwidth), controls the smoothness of distribution for *multiple* stations
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % outputs
@@ -81,9 +83,9 @@ for ip=1:2 % two time period
 
    sp2=size(prcp1,2); 
    if sp2==1 % judge if the pdata is just one station
-     [ppdf_kde,pamt_kde] = KDE(bincrates, prcp(:), 5*dbin, dbin); 
+     [ppdf_kde,pamt_kde] = KDE(bincrates, prcp(:), nbin*dbin, dbin); 
    else   % means pdata are daily pr over multiple stations
-     [ppdf_kde,pamt_kde] = KDE(bincrates, prcp(:), 3*dbin, dbin);   
+     [ppdf_kde,pamt_kde] = KDE(bincrates, prcp(:), mbin*dbin, dbin);   
    end
 
 % define outputs    
