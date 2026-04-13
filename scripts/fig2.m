@@ -227,6 +227,10 @@ savefig('/share/cliprelabs/jh2423/P1/figures/Fig2.fig');
 exportgraphics(gcf,"/share/cliprelabs/jh2423/P1/figures/Fig2.png",...
     'Resolution', 300);
 
+% % pdf version
+% addpath(genpath('C:\Program Files\MATLAB\altmany-export_fig-d5538e9'));
+% export_fig(gcf,'-eps', '-r300', '-painters', '\\wsl.localhost\Ubuntu\home\jingya\station_model_precip_modes\figures\Fig2.eps');
+% export_fig(gcf,'-pdf', '-r300', '-painters', '\\wsl.localhost\Ubuntu\home\jingya\station_model_precip_modes\figures\Fig2.pdf');
 
 %% plotting functions 
     function [p]=dpamtplot(dpamt1,color1,dpamt2,color2,xticks,xtickratesp)
