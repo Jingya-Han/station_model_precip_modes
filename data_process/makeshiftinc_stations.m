@@ -89,11 +89,11 @@ ppdfshiftinc=pdffrompamt(pamt1,ppdf1,pamtshiftinc,bincrates);
 
         % calculate the terms in the matrices that will need to be solved
         % (equation 10 in Pendergrass and Hartmann 2014, Two Modes of Change of the Distribution of Rain) 
-        spr2=nansum(pamt1.^2);
-        sdpdlnr2=nansum(dpdlnr.^2);
-        spdpdlnr=nansum(pamt1.*dpdlnr);
-        spdpm=nansum(pamt1.*dpamt);
-        sdpdlnrdpm=nansum(dpdlnr.*dpamt);
+        spr2=sum(pamt1.^2,'omitnan');
+        sdpdlnr2=sum(dpdlnr.^2,'omitnan');
+        spdpdlnr=sum(pamt1.*dpdlnr,'omitnan');
+        spdpm=sum(pamt1.*dpamt,'omitnan');
+        sdpdlnrdpm=sum(dpdlnr.*dpamt,'omitnan');
         
         % set up the matrices
         B=[spdpm; -sdpdlnrdpm];
@@ -109,7 +109,8 @@ ppdfshiftinc=pdffrompamt(pamt1,ppdf1,pamtshiftinc,bincrates);
         pamtshiftinc=x(1).*pamt1-x(2).*(dpdlnr)+pamt1;
 
         % error of the fit (%)
-        err=100*nansum(abs(pamtshiftinc(3:end)-pamt21k(3:end)))./nansum(abs(dpamt(3:end)));
+        err = 100 * sum(abs(pamtshiftinc(3:end) - pamt21k(3:end)), 'omitnan') ...
+      ./ sum(abs(dpamt(3:end)), 'omitnan');
     end
 
     function [newppdf]=pdffrompamt(pamt,ppdf,newpamt,bincrates)
