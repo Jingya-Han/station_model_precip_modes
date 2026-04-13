@@ -33,7 +33,7 @@ function [ppdf_kde, pamt_kde] = KDE(x, data, bandwidth, dbin)
     p_hat(1) =0; % set wet-day precip as 0
     
     % Renormalize the amount distribution by daily mean precipitation
-    meanp = nanmean(data(:)); 
+    meanp = mean(data(:),'omitnan'); 
     pamt_kde = p_hat * (meanp / sum(p_hat));  % Normalize
 
     
