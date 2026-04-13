@@ -304,6 +304,11 @@ box on;
 savefig('/share/cliprelabs/jh2423/P1/figures/Figs1.fig');
 exportgraphics(gcf,"/share/cliprelabs/jh2423/P1/figures/Figs1.png",...
     'Resolution', 300);
+% % pdf version
+% addpath(genpath('C:\Program Files\MATLAB\altmany-export_fig-d5538e9'));
+% export_fig(gcf,'-eps', '-r300', '-painters', '\\wsl.localhost\Ubuntu\home\jingya\station_model_precip_modes\figures\Figs1.eps');
+% export_fig(gcf,'-pdf', '-r300', '-painters', '\\wsl.localhost\Ubuntu\home\jingya\station_model_precip_modes\figures\Figs1.pdf');
+
 
 
 %% plotting functions 
