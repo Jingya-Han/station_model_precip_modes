@@ -91,8 +91,8 @@ xlim([0 142]);
 ylim([0 0.065]);
 a=axis;
 text(6,a(4)*0.9,'b','FontName','Arial','fontsize',9,'FontWeight','bold');
-xlabel('Precipitation rate (mm d ^-^1)','FontName','Arial','fontsize',9);
-ylabel('Precipitation amount (mm d ^-^1)','FontName','Arial','fontsize',9);
+xlabel('Precipitation rate (mm/d)','FontName','Arial','fontsize',9);
+ylabel('Precipitation amount (mm/d)','FontName','Arial','fontsize',9);
 
 savefig('/share/cliprelabs/jh2423/P1/figures/Fig1.fig');
 exportgraphics(gcf,"/share/cliprelabs/jh2423/P1/figures/Fig1.png",...
