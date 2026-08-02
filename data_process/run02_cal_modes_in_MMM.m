@@ -144,10 +144,11 @@ for ig=1:length(gridppdf1(:,1))
     gridinc(ig,1)=mmminc;
     gridshift(ig,1)=mmmshift;  
     [a_o, b_o]=calc_ao_bo_raindist(gridpamt1(ig,:)',gridpamt2(ig,:)',BINCRATES);
-    grid_a_o(ig,1)=a_o;
     a_o=a_o./dt;
-    grid_b_o(ig,1)=b_o;
+    grid_a_o(ig,1)=a_o;
     b_o=b_o./dt;
+    grid_b_o(ig,1)=b_o;
+    
 
 end
 save([path,'cmip6_modes_spatial_dist_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),'_',...
