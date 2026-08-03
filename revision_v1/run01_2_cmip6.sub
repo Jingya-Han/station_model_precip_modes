@@ -1,0 +1,30 @@
+#!/bin/bash
+#SBATCH -J run01_2_cmip6                     # Job name
+#SBATCH -o out_matlab_jh_%j                  # output file (%j expands to jobID)
+#SBATCH -e err_matlab_jh_%j                  # error log file (%j expands to jobID)
+#SBATCH --mail-type=ALL                      # Request status by email
+#SBATCH --mail-user=jh2423@cornell.edu       # Email address to send results to.
+#SBATCH -N 1                                 # Total number of nodes requested
+#SBATCH --ntasks=1                           # ONE process ...
+#SBATCH --cpus-per-task=8                    # ... with 8 cores for the parfor pool
+#SBATCH --get-user-env                       # retrieve the users login environment
+#SBATCH --mem=64000                          # server memory requested (per node)
+#SBATCH -t 12:00:00                          # Time limit (hh:mm:ss)
+#SBATCH --partition=cliprelabs               # Request partition
+
+date
+echo "job $SLURM_JOB_ID on $SLURMD_NODENAME, cpus-per-task=$SLURM_CPUS_PER_TASK"
+
+# private job-storage dir for the MATLAB local pool, so concurrent jobs
+# do not clash over ~/.matlab. Removed on exit.
+export TMPDIR=${TMPDIR:-/tmp}
+export MATLAB_JOBDIR=$TMPDIR/mljob_$SLURM_JOB_ID
+mkdir -p $MATLAB_JOBDIR
+trap "rm -rf $MATLAB_JOBDIR" EXIT
+
+cd /share/cliprelabs/jh2423/P1/revision_v1/
+/share/cliprelabs/apps/matlab/r2022a/bin/matlab -nodisplay -nosplash \
+    -r "run run01_2_process_cmip6.m; exit;"
+
+date
+exit
