@@ -23,7 +23,6 @@ addpath('/share/cliprelabs/jh2423/P1/data_process/') % so parfor workers inherit
 folder='/share/cliprelabs/jh2423/P1/revision_v1/cmip6_pr_day_native'; % output folder
 if ~exist(folder,'dir'); mkdir(folder); end
 
-srcdir='/share/cliprelabs/cmip6-ng/pr/day/native/';
 
 thelength=30;   % epoch length
 startyear=1955; % startyear: latest start year
@@ -75,29 +74,21 @@ pc.NumWorkers = ncpu;
 if isempty(gcp('nocreate')); parpool(pc,ncpu); end
 fprintf('parallel pool: %d workers\n', ncpu);
 
+%% available ensemble members -- same rule as the rest of the pipeline
+[ensemble]=cmip_existensembles(modelsnm,sspname);
+
 %% pooled epoch distributions for each native grid point
 for im=1:length(modelsnm)
     imodel=modelsnm{im};
 
-    % the ensemble member has to exist in BOTH historical and the ssp
-    fh=dir([srcdir,'pr_day_',imodel,'_historical_*.nc']);
-    fs=dir([srcdir,'pr_day_',imodel,'_',sspname,'_*.nc']);
-    if isempty(fh) || isempty(fs)
-        fprintf('skip (missing historical or %s): %s\n', sspname, imodel); continue
+    common=ensemble{im};
+    if isempty(common) || (numel(common)==1 && isempty(common{1}))
+        fprintf('skip (no available member): %s\n', imodel); continue
     end
-    mem_h=cell(numel(fh),1);
-    for q=1:numel(fh)
-        k=strfind(fh(q).name,'_'); mem_h{q}=fh(q).name(k(4)+1:k(5)-1);
-    end
-    mem_s=cell(numel(fs),1);
-    for q=1:numel(fs)
-        k=strfind(fs(q).name,'_'); mem_s{q}=fs(q).name(k(4)+1:k(5)-1);
-    end
-    common=intersect(unique(mem_h),unique(mem_s));
-    if isempty(common)
-        fprintf('skip (no member in both experiments): %s\n', imodel); continue
-    end
-    if ismember('r1i1p1f1',common); ien='r1i1p1f1'; else; ien=common{1}; end
+    fprintf('=== %s: %d members ===\n', imodel, numel(common));
+
+    for ie=1:numel(common)
+    ien=common{ie};
 
     % judge if there is already the results
     % (the checked name MUST be the same name that is saved below)
@@ -108,7 +99,7 @@ for im=1:length(modelsnm)
         fprintf('skip (already done): %s\n', outfile); continue
     end
 
-    fprintf('--- %s | %s | %d-%d vs %d-%d ---\n', imodel, ien, ...
+    fprintf('--- %s | %s (%d/%d) | %d-%d vs %d-%d ---\n', imodel, ien, ie, numel(common), ...
         period1(1), period1(end), period2(1), period2(end));
     tstart=tic;
 
@@ -191,9 +182,10 @@ for im=1:length(modelsnm)
         'lat','lon','period1','period2','ien','sspname','ndry',...
         '-v7.3','-nocompression');
 
-    fprintf('done %s in %.1f min\n', imodel, toc(tstart)/60);
+    fprintf('done %s %s in %.1f min\n', imodel, ien, toc(tstart)/60);
 
-    pr1=[]; pr2=[]; freqdist=[]; amountdist=[]; % free before the next model
+    pr1=[]; pr2=[]; freqdist=[]; amountdist=[]; % free before the next member
+    end % ie
 end
 
 delete(gcp('nocreate'));
