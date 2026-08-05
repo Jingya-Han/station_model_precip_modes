@@ -43,27 +43,18 @@ selectedmodels = {'ACCESS-CM2';'ACCESS-ESM1-5';...
 %     'TaiESM1'};
 experiments={'ssp370'}; 
 iex=experiments{1,1};% extend historical simu with a ssp
-% [ensemble]=cmip_existensembles(selectedmodels,iex); % name of members with both historical simu and the assigned ssp
-
-ensemble = repmat({{'r1i1p1f1'}}, length(selectedmodels), 1); % keep the same as run01_2 (r1i1p1f1)
+[ensemble]=cmip_existensembles(selectedmodels,iex); % name of members with both historical simu and the assigned ssp
 
 % Normalize the distribution by annual temperature change (%/K)
-[meanT, ~]=cmip_mmm_tas(selectedmodels,iex, ensemble,period1,period2); % meanT for each model each member in period1 and 2
-% dt=mean(mmmT(:,2)-mmmT(:,1)); % dt for each model
-
-% only keep the member r1i1p1f1
-mmmT1 = nan(length(selectedmodels), 2);
-for i = 1:length(selectedmodels)
-    x = meanT{i};
-    if isempty(x); continue; end
-    mmmT1(i,:) = x(1,:);   % [period1, period2]
-end
-mmmT = mmmT1;
-dt = mean(mmmT(:,2) - mmmT(:,1), 'omitnan');
+% mmmT is already the ensemble mean of meanT for each model
+[meanT, mmmT]=cmip_mmm_tas(selectedmodels,iex, ensemble,period1,period2); % meanT for each model each member in period1 and 2
+dt=mean(mmmT(:,2)-mmmT(:,1)); % dt for each model
 
 %cmip_station_match_grid
 [latlongrid,indexofgrid,selectedmodels,finalids]=cmip_station_match_grid...
     (finalids,finallat,finallon,selectedmodels);
+% re-derive: cmip_station_match_grid may drop models, ensemble has to stay aligned
+[ensemble]=cmip_existensembles(selectedmodels,iex);
 disp('model samples for freq and amount distribution')
 
 %% cmip6: Shift and increase modes over aggregation of co-located grids -- Way1
@@ -84,25 +75,34 @@ nmod = length(selectedmodels);
 suf  = ['_',num2str(period1(1)),num2str(period1(end)),'_',...
             num2str(period2(1)),num2str(period2(end)),'.mat'];
 for im = 1:nmod
-    ien = ensemble{im}{1};
-    S = load([cmip6folder,'/non0thre_1_KDE_raindist_',selectedmodels{im},'_',iex,'_',ien,suf],...
-        'freqdist','amountdist','bincrates');
-    if im == 1
-        BINCRATES = S.bincrates(:);
-        nb = length(BINCRATES);
-        freqmodelsample   = zeros(lens,nmod,nb,2);
-        amountmodelsample = zeros(lens,nmod,nb,2);
+    mems = ensemble{im};
+    nmem = numel(mems);
+    fsum = 0; asum = 0;
+    for ie = 1:nmem
+        ien = mems{ie};
+        S = load([cmip6folder,'/non0thre_1_KDE_raindist_',selectedmodels{im},'_',iex,'_',ien,suf],...
+            'freqdist','amountdist','bincrates');
+        if im == 1 && ie == 1
+            BINCRATES = S.bincrates(:);
+            nb = length(BINCRATES);
+            freqmodelsample   = zeros(lens,nmod,nb,2);
+            amountmodelsample = zeros(lens,nmod,nb,2);
+        end
+        [rows,cols,nbmax,~] = size(S.freqdist);
+        % indexofgrid: stations * [row col lat lon] * models
+        lin = sub2ind([rows cols], indexofgrid(:,1,im), indexofgrid(:,2,im));
+        F = reshape(S.freqdist,   rows*cols,nbmax,2);
+        A = reshape(S.amountdist, rows*cols,nbmax,2);
+        f = F(lin,1:nb,:); f(isnan(f)) = 0; % lens x nb x 2
+        a = A(lin,1:nb,:); a(isnan(a)) = 0;
+        fsum = fsum + f;
+        asum = asum + a;
     end
-    [rows,cols,nbmax,~] = size(S.freqdist);
-    % indexofgrid: stations * [row col lat lon] * models
-    lin = sub2ind([rows cols], indexofgrid(:,1,im), indexofgrid(:,2,im));
-    F = reshape(S.freqdist,   rows*cols,nbmax,2);
-    A = reshape(S.amountdist, rows*cols,nbmax,2);
-    freqmodelsample(:,im,:,:)   = reshape(F(lin,1:nb,:),lens,1,nb,2);
-    amountmodelsample(:,im,:,:) = reshape(A(lin,1:nb,:),lens,1,nb,2);
+    % mean across members, so every model carries the same weight
+    freqmodelsample(:,im,:,:)   = reshape(fsum/nmem,lens,1,nb,2);
+    amountmodelsample(:,im,:,:) = reshape(asum/nmem,lens,1,nb,2);
+    fprintf('%-16s %d members\n', selectedmodels{im}, nmem);
 end
-freqmodelsample(isnan(freqmodelsample))     = 0;
-amountmodelsample(isnan(amountmodelsample)) = 0;
 
 % cmip_MMMraindistp1p2, with the year averaging replaced by the epoch index
 ksmodelppdf1=freqmodelsample(:,:,:,1);
