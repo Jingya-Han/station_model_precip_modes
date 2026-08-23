@@ -35,7 +35,6 @@ GISS_path='/share/cliprelabs/jh2423/P1/data_process/tas/GLB.Ts+dSST.csv';
 [prcp1, prcp2]=extract_data(finalsta_prcp,years,period1,period2);
 
 % make smoothed precip distributions over stations
-% make smoothed precip distributions over stations
 % nbin: the smoother, controls the smoothness of distribution for *one* station
 % mbin: the smoother, controls the smoothness of distribution for *multiple* stations
 nbin=5;
@@ -82,7 +81,8 @@ ncwriteatt(ncfile1, '/', 'title', 'raw precip amount distribution');
 global_a_o = global_a_o/dt_noaa; % unit:%/K
 global_b_o = global_b_o/dt_noaa; % unit:%/K
 save( [path,'way1_stations_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),'_',...
-    num2str(period2(1)),num2str(period2(end)),'.mat'],'shift_w1','inc_w1','err_w1','kdepamt1','dpamt1','pamtshift','pamtinc',...
+    num2str(period2(1)),num2str(period2(end)),'.mat'],'shift_w1','inc_w1','err_w1','kdepamt1','kdepamt2',...
+    'kdeppdf1','kdeppdf2','dpamt1','pamtshift','pamtinc',...
     'pamtshiftinc','dfreq','dfreqshift','dfreqinc','dfreqshiftinc','bincrates',...
     'global_a_o','global_b_o');
 
