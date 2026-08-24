@@ -4,9 +4,26 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clear
+% Science Advances figure standards:
+%   2-column width 18.4 cm; max depth 19.9 cm (leaves room for the legend)
+%   panel letters 9 pt bold capitals; all other type 8 pt sans serif (6 pt min)
+%   symbols 5-8 pt; line weights >= 0.28 pt; no minor ticks or grid lines
+fn  = 'Myriad Pro'; % falls back to the default sans serif if not installed
+fs  = 8;   % all labels, ticks and legends
+fsp = 9;   % panel letters, bold
+ms  = 25;  % scatter area in pt^2 -> 5 pt diameter
+xlab = 0.08; % panel letter, normalized x (clear of the curves in D)
+figpath = '\\wsl.localhost\ubuntu\home\jingya\station_model_precip_modes\figures\';
+
+% MATLAB silently substitutes a font it cannot find, so check once
+if ~any(strcmp(listfonts,fn))
+    warning('%s not found; falling back to %s. Install Myriad Pro or set fn manually.',fn,get(0,'defaultAxesFontName'));
+    fn = get(0,'defaultAxesFontName');
+end
+
 f=figure;clf
 set(gcf,'units','centimeters','paperpositionmode','auto');
-set(gcf,'position',[1 1 18 15]); 
+set(gcf,'position',[1 1 18.4 15]); 
 set(f,'Color','white');
 left=0.09; down= .55;width= .4;he= .4;
 poss=[left down width he;
@@ -93,9 +110,10 @@ for i = 1:numel(perc8)
     end
 
     % Draw percentile box
-    patch([x-0.15, x+0.15, x+0.15, x-0.15], ...
+    hp = patch([x-0.15, x+0.15, x+0.15, x-0.15], ...
           [perc8(i), perc8(i), perc92(i), perc92(i)], ...
           color, 'FaceAlpha', 0.6, 'EdgeColor', 'none');
+    if mod(i,2) == 0; hSta = hp; end % stations sit at even i
     hold on;
 
     % Draw median line
@@ -107,23 +125,24 @@ xlim([0 5]);
 ylim([-2 18]);
 clear xticks; xticks([1.5 3.5]);
 xticklabels({'Increase mode', 'Shift mode'});
-set(gca,'fontsize',9,'XTickLabelRotation',0,'FontName','Arial');
-ylabel('Magnitude of modes (% K^-^1)', 'FontName','Arial','fontsize',9');
+set(gca,'fontsize',fs,'XTickLabelRotation',0,'FontName',fn);
+ylabel('Magnitude of modes (% K^-^1)', 'FontName',fn,'fontsize',fs);
 box on;
-text(0.6,16,'a','FontWeight','bold','FontName','Arial','fontsize',9');
+text(xlab,0.94,'A','Units','normalized','FontWeight','bold','FontName',fn,'fontsize',fsp);
 
-% scatter ensembles
-for ie=1:length(inc_MMM)
-    theinc=inc_MMM(ie);
-    scatter(1, theinc, 15,'MarkerEdgeColor',[0.4 .4 .4],'MarkerFaceColor',MMMcolor);
-    hold on;
-
-    theshi=shi_MMM(ie);
-    scatter(3, theshi, 15,'MarkerEdgeColor',[0.4 .4 .4],'MarkerFaceColor',MMMcolor);
-    
-end
-legend({'','','','Station','','','','','','Ensemble member'},...
-    'FontName','Arial','fontsize',9');
+% scatter ensembles: only the members inside the 84% interval (8th-92nd
+% percentile), which is the interval used for the visual overlap test
+q_inc = prctile(inc_MMM(:),[8 92]);
+q_shi = prctile(shi_MMM(:),[8 92]);
+in_inc = inc_MMM(inc_MMM>=q_inc(1) & inc_MMM<=q_inc(2));
+in_shi = shi_MMM(shi_MMM>=q_shi(1) & shi_MMM<=q_shi(2));
+fprintf('panel a: %d of %d increase members and %d of %d shift members within the 84%% interval\n',...
+    numel(in_inc),numel(inc_MMM),numel(in_shi),numel(shi_MMM));
+hEns = scatter(ones(size(in_inc)), in_inc, ms,'MarkerEdgeColor',[0.4 .4 .4],'MarkerFaceColor',MMMcolor);
+hold on;
+scatter(3*ones(size(in_shi)), in_shi, ms,'MarkerEdgeColor',[0.4 .4 .4],'MarkerFaceColor',MMMcolor);
+hold on;
+legend([hSta hEns],{'Station','Ensemble member'},'FontName',fn,'fontsize',fs);
 legend('boxoff')
 
 s=subplot(2,2,2); s.Position=poss(2,:);
@@ -175,9 +194,10 @@ for i = 1:numel(perc8)
     end
 
     % Draw percentile box
-    patch([x-0.15, x+0.15, x+0.15, x-0.15], ...
+    hp = patch([x-0.15, x+0.15, x+0.15, x-0.15], ...
           [perc8(i), perc8(i), perc92(i), perc92(i)], ...
           color, 'FaceAlpha', 0.6, 'EdgeColor', 'none');
+    if mod(i,2) == 0; hSta = hp; end % stations sit at even i
     hold on;
 
     % Draw median line
@@ -187,23 +207,25 @@ end
 % Customize axes
 clear xticks; xticks([1.5 3.5]);
 xlim([0 5]);
-ylim([-1.5 18]);
-xticklabels({'a_o', 'b_o'});
-set(gca,'fontsize',9,'XTickLabelRotation',0,'FontName','Arial');
-ylabel('Magnitude of modes (% K^-^1)', 'FontName','Arial','fontsize',9');
+ylim([-2 18]); % same scale as A, so the two panels read together
+xticklabels({'\ita\rm_o', '\itb\rm_o'});
+set(gca,'fontsize',fs,'XTickLabelRotation',0,'FontName',fn);
+ylabel('Magnitude of modes (% K^-^1)', 'FontName',fn,'fontsize',fs);
 box on;
-text(0.6,16,'b','FontWeight','bold','FontName','Arial','fontsize',9');
+text(xlab,0.94,'B','Units','normalized','FontWeight','bold','FontName',fn,'fontsize',fsp);
 
-% scatter ensembles
-for ie=1:length(ao_MMM)
-    theao=ao_MMM(ie);
-    scatter(1, theao, 20,'MarkerEdgeColor',[0.4 .4 .4],'MarkerFaceColor',MMMcolor);
-    hold on;
-
-    thebo=bo_MMM(ie);
-    scatter(3, thebo, 20,'MarkerEdgeColor',[0.4 .4 .4],'MarkerFaceColor',MMMcolor);
-    
-end
+% scatter ensembles: only the members inside the 84% interval (8th-92nd
+% percentile), which is the interval used for the visual overlap test
+q_ao = prctile(ao_MMM(:),[8 92]);
+q_bo = prctile(bo_MMM(:),[8 92]);
+in_ao = ao_MMM(ao_MMM>=q_ao(1) & ao_MMM<=q_ao(2));
+in_bo = bo_MMM(bo_MMM>=q_bo(1) & bo_MMM<=q_bo(2));
+fprintf('panel b: %d of %d a_o members and %d of %d b_o members within the 84%% interval\n',...
+    numel(in_ao),numel(ao_MMM),numel(in_bo),numel(bo_MMM));
+hEns = scatter(ones(size(in_ao)), in_ao, ms,'MarkerEdgeColor',[0.4 .4 .4],'MarkerFaceColor',MMMcolor);
+hold on;
+scatter(3*ones(size(in_bo)), in_bo, ms,'MarkerEdgeColor',[0.4 .4 .4],'MarkerFaceColor',MMMcolor);
+hold on;
 
 
 %% rain amount distribution
@@ -255,6 +277,8 @@ xtickratesp(isnan(xticks))=[];
 xticks(isnan(xticks))=[];
 
 s=subplot(2,2,3); s.Position=poss(3,:); 
+% start the rain-rate axis at 0.1 mm/day, the reporting resolution of GHCNd
+x01=interp1(bincrates,1:length(bincrates),0.1);
 % plot ensembles
 for ie=1:length(cmip_dpamt1(1,:))
  nb=length(cmip_dpamt1);
@@ -266,18 +290,19 @@ for ie=1:length(cmip_dpamt1(1,:))
  hold on;
  l=line([0 130],[0 0]);set(l,'color',[1 1 1]*.5,'HandleVisibility', 'off') % add a zero line 
  ylim([-.02 0.13]); % choose y-axes
- xlim([4 130]) % exclude the zero bin and also the last few, where little should be happening. 
+ xlim([x01 130]) % start at 0.1 mm/day, drop the last few bins where little should be happening.
  set(gca,'xtick',xticks,'xticklabel',xtickratesp,'XTickLabelRotation',0,...
-     'FontName','Arial','fontsize',7') % make x-axes show rain rate in mm/d
+     'FontName',fn,'fontsize',fs) % make x-axes show rain rate in mm/d
  hold on;
 end
 
 % plot the line
 dpamtplot(mmm_dpamt1(:),MMMsimcolor,(mmm_pamtshiftinc(:)-KDEMMMpamt1(:))*1./db,MMMspicolor,xticks,xtickratesp);
-legend({'Model','Increase + Shift modes'},'FontName','Arial','fontsize',9'); legend('boxoff'); hold on;
-set(gca,'fontsize',9,'XTickLabelRotation',0,'FontName','Arial');
-ylabel('\DeltaPrecipitation amount (mm d^-^1K^-^1)','FontName','Arial','fontsize',9');% If you wanted to be precise, the y-axis label is in mm/d/K/\Delta bin
-text(20,0.115,'c','FontWeight','bold','FontName','Arial','fontsize',9');
+xlim([x01 130]) % override the default set inside dpamtplot
+legend({'Model','Increase + Shift modes'},'FontName',fn,'fontsize',fs); legend('boxoff'); hold on;
+set(gca,'fontsize',fs,'XTickLabelRotation',0,'FontName',fn);
+ylabel('\DeltaPrecipitation amount (mm d^-^1 K^-^1)','FontName',fn,'fontsize',fs);% If you wanted to be precise, the y-axis label is in mm/d/K/\Delta bin
+text(xlab,0.94,'C','Units','normalized','FontWeight','bold','FontName',fn,'fontsize',fsp);
 box on;
 
 
@@ -297,13 +322,20 @@ for ie=1:length(cmip_dfreq(1,:))
 end
 %plot the line
 drpercentileplot(mmm_dfreq,MMMsimcolor,mmm_dfreqshiftinc,MMMspicolor,pbinm,xticks99);
-ylabel('\DeltaPrecipitation rate (% K^-^1)','FontName','Arial','fontsize',9');
-text(5,15,'d','FontWeight','bold','FontName','Arial','fontsize',9');
+set(gca,'fontsize',fs,'XTickLabelRotation',0,'FontName',fn); % match A-C
+ylabel('\DeltaPrecipitation rate (% K^-^1)','FontName',fn,'fontsize',fs);
+text(xlab,0.94,'D','Units','normalized','FontWeight','bold','FontName',fn,'fontsize',fsp);
 box on;
 
-% savefig('/share/cliprelabs/jh2423/P1/figures/Figs1.fig');
-% exportgraphics(gcf,"/share/cliprelabs/jh2423/P1/figures/Figs1.png",...
-%     'Resolution', 300);
+savefig([figpath,'figS1.fig']);
+exportgraphics(gcf,[figpath,'figS1.pdf'],...
+    'ContentType','vector','BackgroundColor','white'); % .pdf vector is the preferred format
+exportgraphics(gcf,[figpath,'figS1.png'],...
+    'Resolution', 600); % png fallback; 600 dpi is the ceiling before downsampling
+% pdf version
+addpath(genpath('C:\Program Files\MATLAB\altmany-export_fig-d5538e9'));
+export_fig(gcf,'-eps', '-r300', '-painters', [figpath,'figS1.eps']);
+export_fig(gcf,'-pdf', '-r300', '-painters', [figpath,'figS1.pdf']);
 
 % %%  Intervals for the fitted modes (increase, shift) and the directly
 % %   calculated modes (a_o, b_o), stations and CMIP6
@@ -441,6 +473,8 @@ box on;
 
 %% plotting functions 
     function []=dpamtplot(dpamt1,color1,dpamt2,color2,xticks,xtickratesp)
+        fs=8; fn='Myriad Pro'; % local functions do not inherit the script workspace
+        if ~any(strcmp(listfonts,fn)); fn=get(0,'defaultAxesFontName'); end
         % plot the change in rain amount distribution.  two curves in two
         % different colors.  
         nb=length(dpamt1);
@@ -455,10 +489,12 @@ box on;
         set(gca,'xtick',xticks,'xticklabel',xtickratesp,'XTickLabelRotation',0) % make x-axes show rain rate in mm/d
         
         %  ylabel('\DeltaRain amount (mm/d/K)');% If you wanted to be precise, the y-axis label is in mm/d/K/\Delta bin
-        xlabel('Precipitation rate (mm d^-^1)','FontName','Arial','fontsize',9');
+        xlabel('Precipitation rate (mm d^-^1)','FontName',fn,'fontsize',fs);
     end
 
     function []=dppdfplot(dppdf1,color1,dppdf2,color2,xticks,xtickratesp)
+        fs=8; fn='Myriad Pro'; % local functions do not inherit the script workspace
+        if ~any(strcmp(listfonts,fn)); fn=get(0,'defaultAxesFontName'); end
         % plot the change in rain frequency distribution.  two curves in two
         % different colors.  
         
@@ -476,15 +512,17 @@ box on;
         
         % add the changes in dry-day frequency at the top left of the plot
         a=axis;
-        t1=text(100,-0.1,[' ' num2str(100*dppdf1(1),2)],'horizontalalignment','left','verticalalignment','top','color',color1,'fontsize',10);
-        t4=text(100,-0.13,[' ' num2str(100*dppdf2(1),2)],'horizontalalignment','left','verticalalignment','top','color',color2,'fontsize',10);
+        t1=text(100,-0.1,[' ' num2str(100*dppdf1(1),2)],'horizontalalignment','left','verticalalignment','top','color',color1,'fontsize',fs);
+        t4=text(100,-0.13,[' ' num2str(100*dppdf2(1),2)],'horizontalalignment','left','verticalalignment','top','color',color2,'fontsize',fs);
         
         %  ylabel('\DeltaFrequency (%/K)'); % If you wanted to be precise, the y-axis label is in mm/d/K/\Delta bin
-        xlabel('Precipitation rate (mm d^-^1)','FontName','Arial','fontsize',9');
+        xlabel('Precipitation rate (mm d^-^1)','FontName',fn,'fontsize',fs);
                 
     end
 
     function []=drpercentileplot(dfreq1,color1,dfreq2,color2,pbinm,xticks99)
+        fs=8; fn='Myriad Pro'; % local functions do not inherit the script workspace
+        if ~any(strcmp(listfonts,fn)); fn=get(0,'defaultAxesFontName'); end
         % plot the change in rain rate as a function of percentile.  two curves in two
         % different colors.  
         
@@ -495,20 +533,8 @@ box on;
         
         ylim([-5 17]) % choose y-axes
         
-        % add minor ticks. without forcing them to have labels.  Code from
-        % matlab central. 
-        % grid on
-        xg = xticks99;
-        xx = reshape([xg;xg;NaN(1,length(xg))],1,length(xg)*3);
-        a=axis;
-        mth=(a(4)-a(3))/100;
-        yg = a(3)+[0 mth];
-        yy = repmat([yg NaN],1,length(xg));
-        yg2 = a(4)+[0 -mth];
-        yy2 = repmat([yg2 NaN],1,length(xg));
-        hold on
-        h_minorgrid = plot(xx,yy,'k',xx,yy2,'k');
-        hold off
+        % minor ticks removed: Science Advances does not allow minor tick
+        % marks or grid lines in scales
 
         set(gca,'xtick',10:10:length(pbinm),'xticklabel',{90 99 99.9 99.99},'XTickLabelRotation',0) % make x-axes show percentile
         
@@ -516,5 +542,5 @@ box on;
         xlim([1 length(pbinm)])
         
         % ylabel('\DeltaRain rate (%/K)')
-        xlabel('Percentile','FontName','Arial','fontsize',9')
+        xlabel('Percentile','FontName',fn,'fontsize',fs)
     end
