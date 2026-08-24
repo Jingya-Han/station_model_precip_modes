@@ -21,7 +21,7 @@ left+0.48 0.1 width he];
 period1 = 1955:1984;
 period2 = 1994:2023;
 missrate=20;
-path='/share/cliprelabs/jh2423/P1/dataforplot/';
+path='\\wsl.localhost\ubuntu\home\jingya\station_model_precip_modes\dataforplot\';
 
 % Load station data
 inc_stations=ncread([path,'stations_uncertainty_range_',num2str(missrate),'%miss_', num2str(period1(1)), num2str(period1(end)), '_', ...
@@ -301,13 +301,141 @@ ylabel('\DeltaPrecipitation rate (% K^-^1)','FontName','Arial','fontsize',9');
 text(5,15,'d','FontWeight','bold','FontName','Arial','fontsize',9');
 box on;
 
-savefig('/share/cliprelabs/jh2423/P1/figures/Figs1.fig');
-exportgraphics(gcf,"/share/cliprelabs/jh2423/P1/figures/Figs1.png",...
-    'Resolution', 300);
-% % pdf version
-% addpath(genpath('C:\Program Files\MATLAB\altmany-export_fig-d5538e9'));
-% export_fig(gcf,'-eps', '-r300', '-painters', '\\wsl.localhost\Ubuntu\home\jingya\station_model_precip_modes\figures\Figs1.eps');
-% export_fig(gcf,'-pdf', '-r300', '-painters', '\\wsl.localhost\Ubuntu\home\jingya\station_model_precip_modes\figures\Figs1.pdf');
+% savefig('/share/cliprelabs/jh2423/P1/figures/Figs1.fig');
+% exportgraphics(gcf,"/share/cliprelabs/jh2423/P1/figures/Figs1.png",...
+%     'Resolution', 300);
+
+% %%  Intervals for the fitted modes (increase, shift) and the directly
+% %   calculated modes (a_o, b_o), stations and CMIP6
+% %   Jingya Han, Cornell University, jh2423@cornell.edu added on Aug 2026
+% %
+% %   Reads the arrays that figs1_changeraindist_ensemble.m plots in panels
+% %   A and B:
+% %     stations : UR_inc, UR_shift, UR_a_o, UR_b_o  (500 bootstrap resamples
+% %                over stations -> a sampling distribution, so 95% CI)
+% %     models   : UR_inc, UR_shift, UR_a_o, UR_b_o  (individual ensemble
+% %                members -> a spread, so 95% range, NOT a CI)
+% %
+% %   Two widths are reported, used for different purposes:
+% %     95% (2.5-97.5) : quoted in the text for a single quantity
+% %     84% (8-92)     : plotted as error bars ONLY, so that non-overlap of a
+% %                      station-model pair indicates a difference with 95%
+% %                      confidence (Payton et al., ref 48). The 84% rule is
+% %                      derived for pairwise comparison and has no meaning
+% %                      when reporting one quantity on its own.
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+% clear
+% 
+% period1  = 1955:1984;
+% period2  = 1994:2023;
+% missrate = 20;
+% path     = '\\wsl.localhost\ubuntu\home\jingya\station_model_precip_modes\dataforplot\';
+% 
+% suffix = [num2str(missrate),'%miss_', ...
+%           num2str(period1(1)),num2str(period1(end)),'_', ...
+%           num2str(period2(1)),num2str(period2(end)),'.nc'];
+% 
+% fsta = [path,'stations_uncertainty_range_',suffix];
+% fmod = [path,'cmip6_uncertainty_range_',suffix];
+% 
+% vars = {'UR_inc','UR_shift','UR_a_o','UR_b_o'};
+% lab  = {'increase','shift','a_o','b_o'};
+% 
+% sta = struct(); mod = struct();
+% for k = 1:4
+%     sta.(lab{k}) = ncread(fsta,vars{k});
+%     mod.(lab{k}) = ncread(fmod,vars{k});
+% end
+% 
+% %% -------------------------------------------------------- sanity on sizes
+% nsta = numel(sta.increase(~isnan(sta.increase)));
+% nmod = numel(mod.increase(~isnan(mod.increase)));
+% fprintf('\nStations: %d bootstrap resamples.  Models: %d ensemble members.\n', nsta, nmod);
+% if nmod < 20
+%     warning(['Only %d model members: prctile(2.5) and prctile(97.5) return ' ...
+%              'min and max, so a "95%% range" is not meaningful.'], nmod);
+% end
+% if nsta < 100
+%     warning('Only %d station resamples; check that UR_* holds bootstrap samples.', nsta);
+% end
+% 
+% %% ------------------------------------------------------------ 95% and 84%
+% q95 = [2.5 97.5];
+% q84 = [8 92];
+% 
+% fprintf('\n%-22s %8s %20s %20s\n','Quantity','median','95%% (2.5-97.5)','84%% (8-92)');
+% fprintf('%s\n',repmat('-',1,74));
+% 
+% S95 = nan(4,2); S84 = nan(4,2); M95 = nan(4,2); M84 = nan(4,2);
+% for k = 1:4
+%     x = sta.(lab{k})(:); x = x(~isnan(x));
+%     y = mod.(lab{k})(:); y = y(~isnan(y));
+%     S95(k,:) = prctile(x,q95);  S84(k,:) = prctile(x,q84);
+%     M95(k,:) = prctile(y,q95);  M84(k,:) = prctile(y,q84);
+%     fprintf('%-22s %8.2f   [%6.2f, %6.2f]     [%6.2f, %6.2f]\n', ...
+%         ['stations ',lab{k}], median(x), S95(k,1),S95(k,2), S84(k,1),S84(k,2));
+%     fprintf('%-22s %8.2f   [%6.2f, %6.2f]     [%6.2f, %6.2f]\n', ...
+%         ['models   ',lab{k}], median(y), M95(k,1),M95(k,2), M84(k,1),M84(k,2));
+% end
+% 
+% %% -------------------------------------------------- overlap of each pair
+% % The visual test in the figures: do the 84% intervals of a station-model
+% % pair overlap? Non-overlap indicates a difference with 95% confidence.
+% % Also checked at 95% width, which is the more conservative criterion.
+% fprintf('\nPairwise overlap (station vs model)\n');
+% for k = 1:4
+%     ov84 = ~(S84(k,1) > M84(k,2) || M84(k,1) > S84(k,2));
+%     ov95 = ~(S95(k,1) > M95(k,2) || M95(k,1) > S95(k,2));
+%     fprintf('  %-9s  84%% intervals %s;  95%% intervals %s\n', lab{k}, ...
+%         ternary(ov84,'OVERLAP','do not overlap'), ...
+%         ternary(ov95,'OVERLAP','do not overlap'));
+% end
+% 
+% %% ------------------------------------------------- text for the manuscript
+% % Point estimates are the values already quoted in the manuscript; the
+% % intervals come from the arrays above.
+% fprintf('\n--- fitted modes ---\n');
+% fprintf(['In observations, ... an increase mode of 10.16%%K-1 (95%% confidence ' ...
+%     'interval %.2f-%.2f%%K-1) and a shift mode of 9.83%%K-1 (%.2f-%.2f%%K-1). ' ...
+%     'In CMIP6 models, the multi-model mean is approximately 3.2%%K-1 for both ' ...
+%     'modes, and individual ensemble members span %.2f-%.2f%%K-1 for the increase ' ...
+%     'mode and %.2f-%.2f%%K-1 for the shift mode (2.5th to 97.5th percentiles ' ...
+%     'across %d ensemble members).\n'], ...
+%     S95(1,1),S95(1,2), S95(2,1),S95(2,2), M95(1,1),M95(1,2), M95(2,1),M95(2,2), nmod);
+% 
+% fprintf('\n--- directly calculated modes ---\n');
+% fprintf(['In station observations, a_o is 9.30%%K-1 (95%% confidence interval ' ...
+%     '%.2f-%.2f%%K-1) and b_o is 9.43%%K-1 (%.2f-%.2f%%K-1). In CMIP6 models, the ' ...
+%     'multi-model mean a_o is 3.06%%K-1 and b_o is 3.15%%K-1, with individual ' ...
+%     'ensemble members spanning %.2f-%.2f%%K-1 and %.2f-%.2f%%K-1 respectively.\n'], ...
+%     S95(3,1),S95(3,2), S95(4,1),S95(4,2), M95(3,1),M95(3,2), M95(4,1),M95(4,2));
+% 
+% fprintf('\n--- 84%% intervals: for the error bars only, not for the text ---\n');
+% for k = 1:4
+%     fprintf('  %-9s stations [%.2f, %.2f]   models [%.2f, %.2f]\n', ...
+%         lab{k}, S84(k,1),S84(k,2), M84(k,1),M84(k,2));
+% end
+% 
+% %% ---------------------------------------------------- consistency check
+% quoted_sta = [10.16 9.83 9.30 9.43];
+% quoted_mod = [3.20 3.20 3.06 3.15];
+% fprintf('\nQuoted point estimates vs the ensembles they are paired with:\n');
+% for k = 1:4
+%     if quoted_sta(k) < S95(k,1) || quoted_sta(k) > S95(k,2)
+%         warning('stations %s: quoted %.2f lies outside its 95%% CI.', lab{k}, quoted_sta(k));
+%     end
+%     if quoted_mod(k) < M95(k,1) || quoted_mod(k) > M95(k,2)
+%         warning('models %s: quoted %.2f lies outside the member range.', lab{k}, quoted_mod(k));
+%     end
+%     fprintf('  %-9s stations quoted %.2f vs bootstrap median %.2f;  models quoted %.2f vs member median %.2f\n', ...
+%         lab{k}, quoted_sta(k), median(sta.(lab{k})(~isnan(sta.(lab{k})))), ...
+%         quoted_mod(k), median(mod.(lab{k})(~isnan(mod.(lab{k})))));
+% end
+% 
+% function out = ternary(c,a,b)
+%     if c, out = a; else, out = b; end
+% end
 
 
 
