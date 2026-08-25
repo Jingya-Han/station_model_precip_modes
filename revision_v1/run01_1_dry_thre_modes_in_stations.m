@@ -1,4 +1,4 @@
-%% change non-zero precipitation threshod into 1 mm/day and repeat the whole calculation
+%% run01 series are used to change non-zero precipitation threshod into 1 mm/day and repeat the whole calculation
 % August 2026. line 26, line 206: finalsta_prcp(finalsta_prcp<1)=0;
 % Daily values below 1 mm/day are set to zero on the raw station series,
 % before any distribution is computed, so every downstream calculation
