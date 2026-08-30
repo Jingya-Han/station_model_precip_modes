@@ -8,3 +8,4 @@ exclude_RU/
 plots_for_project1_slides/
 figures_old/
 revision_v1/cmip6_pr_day_native/*.mat
+dataforplot/way1_model_samples_20%miss_19551984_19942023.mat
