@@ -37,7 +37,7 @@ selectedmodels = {'ACCESS-CM2';'ACCESS-ESM1-5';...
 %     'MPI-ESM1-2-LR';'MRI-ESM2-0';'NorESM2-LM';...
 %     'TaiESM1'};
 cmip6folder='/share/cliprelabs/jh2423/modesofchange_system/cmip6_pr_day_native'; % output folder
-experiments={'ssp370','ssp585','ssp126','ssp245'}; 
+experiments={'ssp370','ssp585','ssp126','ssp245'};
 iex=experiments{1,1};% extend historical simu with a ssp
 [ensemble]=cmip_existensembles(selectedmodels,iex); % name of members with both historical simu and the assigned ssp
 
@@ -53,12 +53,22 @@ disp('model samples for freq and amount distribution')
 %% cmip6: Shift and increase modes over aggregation of co-located grids -- Way1
 % Smoothed (P2) – Smoothed (P1)
 
-tic
-[ksfreqmodelsample,ksamountmodelsample,~,BINCRATES]=cmip_sample_raindist...
-    (finalids,indexofgrid,cmip6folder,'KDE',selectedmodels,iex,ensemble,modelsy, modeley);
-toc
+% tic
+% [ksfreqmodelsample,ksamountmodelsample,~,BINCRATES]=cmip_sample_raindist...
+%     (finalids,indexofgrid,cmip6folder,'KDE',selectedmodels,iex,ensemble,modelsy, modeley);
+% toc
+% % save raw samples
+% save([path,'way1_model_samples_',num2str(missrate),'%miss_',...
+%     num2str(period1(1)),num2str(period1(end)),'_',num2str(period2(1)),num2str(period2(end)),'.mat'],...
+%     'ksfreqmodelsample','ksamountmodelsample','BINCRATES','selectedmodels',...
+%     'ensemble')
+
+load([path,'way1_model_samples_',num2str(missrate),'%miss_',...
+    num2str(period1(1)),num2str(period1(end)),'_',num2str(period2(1)),num2str(period2(end)),'.mat'],...
+    'ksfreqmodelsample','ksamountmodelsample','BINCRATES','selectedmodels',...
+    'ensemble')
 [KDEMMMppdf1,KDEMMMpamt1,KDEMMMppdf2,KDEMMMpamt2,...
- gridppdf1,gridppdf2,gridpamt1,gridpamt2]=cmip_MMMraindistp1p2(ksfreqmodelsample,ksamountmodelsample,modelsy:modeley,period1,period2);
+    gridppdf1,gridppdf2,gridpamt1,gridpamt2]=cmip_MMMraindistp1p2(ksfreqmodelsample,ksamountmodelsample,modelsy:modeley,period1,period2);
 
 
 [mmmshift_w1,mmminc_w1,mmmerr_w1,mmm_dpamt1,mmm_pamtshift,mmm_pamtinc,mmm_pamtshiftinc,mmm_dppdf1,mmm_ppdfshift,mmm_ppdfinc,...
@@ -70,8 +80,10 @@ MMM_a_o=MMM_a_o./dt;
 MMM_b_o=MMM_b_o./dt;
 
 save( [path,'way1_MMM_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),'_',...
-    num2str(period2(1)),num2str(period2(end)),'.mat'],'KDEMMMppdf1','KDEMMMpamt1','mmmshift_w1','mmminc_w1','mmmerr_w1','mmm_dpamt1','mmm_pamtshift','mmm_pamtinc',...
-    'mmm_pamtshiftinc','mmm_dppdf1','mmm_ppdfshift','mmm_ppdfinc','mmm_ppdfshiftinc','mmm_dfreq','mmm_dfreqshift','mmm_dfreqinc',...
+    num2str(period2(1)),num2str(period2(end)),'.mat'],'KDEMMMppdf1','KDEMMMpamt1',...
+    'KDEMMMpamt2','KDEMMMppdf2','mmmshift_w1','mmminc_w1','mmmerr_w1',...
+    'mmm_dpamt1','mmm_pamtshift','mmm_pamtinc', 'mmm_pamtshiftinc','mmm_dppdf1',...
+    'mmm_ppdfshift','mmm_ppdfinc','mmm_ppdfshiftinc','mmm_dfreq','mmm_dfreqshift','mmm_dfreqinc',...
     'mmm_dfreqshiftinc','MMM_a_o','MMM_b_o','BINCRATES','dt');
 % save as .nc file
 filename=[path,'way1_MMM_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),...
@@ -81,13 +93,13 @@ ncfile=([path,'way1_MMM_',num2str(missrate),'%miss_',num2str(period1(1)),num2str
     '_',num2str(period2(1)),num2str(period2(end)),'.nc']);
 vars = who(fileinfo);
 for i = 1:length(vars) % Loop through variables and load them one by one
-    varname = vars{i};       
-    tmp = load(filename, varname); % Load the variable into current workspace  
+    varname = vars{i};
+    tmp = load(filename, varname); % Load the variable into current workspace
     data = tmp.(varname); % Extract the variable by its name
     data = single(data);
     nccreate(ncfile, varname,'Dimensions',{varname, length(data)});
-    ncwrite(ncfile, varname,data);    
-    
+    ncwrite(ncfile, varname,data);
+
 end
 ncwriteatt(ncfile, '/', 'title', 'modes and distributions over aggregation of gridpoints for MMM');
 % Add global attributes (metadata)
@@ -117,13 +129,13 @@ ncfile=([path,'way0_MMM_',num2str(missrate),'%miss_',num2str(period1(1)),num2str
     '_',num2str(period2(1)),num2str(period2(end)),'.nc']);
 vars = who(fileinfo);
 for i = 1:length(vars) % Loop through variables and load them one by one
-    varname = vars{i};       
-    tmp = load(filename, varname); % Load the variable into current workspace  
+    varname = vars{i};
+    tmp = load(filename, varname); % Load the variable into current workspace
     data = tmp.(varname); % Extract the variable by its name
     data = single(data);
     nccreate(ncfile, varname,'Dimensions',{varname, length(data)});
-    ncwrite(ncfile, varname,data);    
-    
+    ncwrite(ncfile, varname,data);
+
 end
 ncwriteatt(ncfile, '/', 'title', 'way0 distributions over aggregation of gridpoints for MMM');
 % Add global attributes (metadata)
@@ -142,13 +154,13 @@ for ig=1:length(gridppdf1(:,1))
      ~,~,~,~,~]=makeshiftinc_stations...
     (gridppdf1(ig,:)', gridpamt1(ig,:)', gridppdf2(ig,:)', gridpamt2(ig,:)',dt,BINCRATES);
     gridinc(ig,1)=mmminc;
-    gridshift(ig,1)=mmmshift;  
+    gridshift(ig,1)=mmmshift;
     [a_o, b_o]=calc_ao_bo_raindist(gridpamt1(ig,:)',gridpamt2(ig,:)',BINCRATES);
     a_o=a_o./dt;
     grid_a_o(ig,1)=a_o;
     b_o=b_o./dt;
     grid_b_o(ig,1)=b_o;
-    
+
 
 end
 save([path,'cmip6_modes_spatial_dist_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),'_',...
@@ -161,14 +173,14 @@ ncfile=([path,'cmip6_modes_spatial_dist_',num2str(missrate),'%miss_',num2str(per
     '_',num2str(period2(1)),num2str(period2(end)),'.nc']);
 vars = who(fileinfo);
 for i = 1:length(vars) % Loop through variables and load them one by one
-    varname = vars{i};       
-    tmp = load(filename, varname); % Load the variable into current workspace  
+    varname = vars{i};
+    tmp = load(filename, varname); % Load the variable into current workspace
     data = tmp.(varname); % Extract the variable by its name
     data = single(data);
     dim=size(data);
     nccreate(ncfile, varname,'Dimensions',{[varname,'_row'], dim(1),[varname,'_col'],dim(2)});
-    ncwrite(ncfile, varname,data);    
-    
+    ncwrite(ncfile, varname,data);
+
 end
 ncwriteatt(ncfile, '/', 'title', 'spatial pattern of modes for MMM');
 % Add global attributes (metadata)
