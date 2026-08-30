@@ -1,6 +1,7 @@
 # ignore some kind of fies
 *.fig
 *.eps
+*.sub
 
 # ignore some folders
 exclude_RU/
