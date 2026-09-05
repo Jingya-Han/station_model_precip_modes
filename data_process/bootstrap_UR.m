@@ -1,6 +1,6 @@
 function [UR_pamt1, UR_ppdf1, UR_dpamt1, UR_pamtshiftinc, UR_dppdf1, UR_ppdfshiftinc,UR_dfreq, UR_dfreqshiftinc,...
     UR_shift, UR_inc, UR_err, UR_a_o, UR_b_o]=...
-    bootstrap_UR(prcp1, prcp2,sampletime,dt)
+    bootstrap_UR(prcp1, prcp2,sampletime,dt,nbin,mbin)
 % cal uncertainty range using bootstrap
 % input--------------------------------
 % prcp1: daily precipitation in period 1 (days*stations)
@@ -43,7 +43,7 @@ for isa = 1:sampletime
     samp_2=reshape(samp_2, lendaysp2, lengstation);
     % rain distributions
     [ppdf1, pamt1, ppdf2, pamt2, bincrates, ~, ~]=...
-    KDE_makeraindist_i_station(samp_1, samp_2); 
+    KDE_makeraindist_i_station(samp_1, samp_2,nbin,mbin); 
     
     % change of rain distributions
     [shift,inc,err,dpamt1,~,~,pamtshiftinc,dppdf1,...
