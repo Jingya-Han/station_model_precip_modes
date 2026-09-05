@@ -9,7 +9,7 @@ clc
 thelength=30; % epoch length
 missrate=20; % set acceptable miss rate
 startyear=1955; % startyear: latest start year
-endyear=2023; % endyear: earliest end year
+endyear=2016; % endyear: earliest end year
 period1=startyear:(startyear+thelength-1); % early epoch
 period2=(endyear-thelength+1):endyear; % late epoch
 path='/share/cliprelabs/jh2423/P1/dataforplot/'; % the path saved data for plotting
@@ -165,150 +165,141 @@ ncwriteatt(ncfile, '/', 'title', 'spatial distribution for magnitudes of modes')
 % Add global attributes (metadata)
 [ncfile]=nc_metadata(ncfile);
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% use bootstrapping to calculate uncertainty range (epoch length = 30 years)
-% For epoch length of 20 years, users need to change the values of the
-% follwing variables as:
-% thelength=20; startyear=1955:5:1980; endyear=1998:5:2023
-% For epoch length of 10 years, users need to change the values of the
-% follwing variables as:
-% thelength=10; startyear=1980:5:1995; endyear=2014:-5:1999
-clear
-path='/share/cliprelabs/jh2423/P1/dataforplot/'; % the path saved data for plotting
-missrate=20; % set acceptable miss rate 
-thelength=30;
-for startyear= 1955:1964 % startyear: latest start year
-    for endyear=2023:-1:2014 % endyear: earliest end year
-        if startyear+thelength-1 < endyear-(thelength-1)
-        disp(['startyear = ', num2str(startyear), ' endyear = ', num2str(endyear)]);
-        period1=startyear:(startyear+thelength-1);
-        period2=(endyear-thelength+1):endyear;
-           answ = exist([path,'stations_uncertainty_range_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),'_',...
-    num2str(period2(1)),num2str(period2(end)),'.mat']);
-         if answ == 0 % 0 means the variable did not exit 
- 
-    load(['/share/cliprelabs/jh2423/P1/data_process/ghcnd_pr/','thinner_dailypr_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),'_',...
-    num2str(period2(1)),num2str(period2(end)),'.mat'],...
-    'finalsta_prcp','finalids','finallat','finallon','years','qclat', 'qclon');
-
-
-% annual temperature anomaly from Noaa, Berkeley earth, GISTEMP v4
-noaa_path='/share/cliprelabs/jh2423/P1/data_process/tas/aravg.ann.land_ocean.90S.90N.v6.0.0.202401.asc.txt';
-berkeley_path='/share/cliprelabs/jh2423/P1/data_process/tas/global_land_and_ocean_annual_temp.txt';
-GISS_path='/share/cliprelabs/jh2423/P1/data_process/tas/GLB.Ts+dSST.csv';
-[dt_noaa,dt_berkeley, dt_gistemp ]=obs_temp_anomaly(noaa_path,berkeley_path, GISS_path,period1,period2);
-
-
-%% bootstrap to get uncertainty range
-[prcp1, prcp2]=extract_data(finalsta_prcp,years,period1,period2);
-tic
-[UR_pamt1, UR_ppdf1, UR_dpamt1, UR_pamtshiftinc, UR_dppdf1, UR_ppdfshiftinc,UR_dfreq, UR_dfreqshiftinc,...
-    UR_shift, UR_inc, UR_err, UR_a_o, UR_b_o]=...
-    bootstrap_UR(prcp1, prcp2,500,dt_noaa);
-toc
-UR_a_o = UR_a_o./dt_noaa;
-UR_b_o = UR_b_o./dt_noaa;
-save([path,'stations_uncertainty_range_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),'_',...
-    num2str(period2(1)),num2str(period2(end)),'.mat'],'UR_pamt1', 'UR_ppdf1', 'UR_dpamt1', 'UR_pamtshiftinc', 'UR_dppdf1',...
-    'UR_ppdfshiftinc','UR_dfreq', 'UR_dfreqshiftinc','UR_shift', 'UR_inc', 'UR_err', 'UR_a_o', 'UR_b_o');
-clear qc_prcp pnz
-
-
-%% add shi inc err of aggregated stations for each epoch pair
-% Shift and increase modes using ksdensity-- Way1
-% Smoothed (P2) – Smoothed (P1)
-[prcp1, prcp2]=extract_data(finalsta_prcp,years,period1,period2);
-[kdeppdf1, kdepamt1, kdeppdf2, kdepamt2, bincrates, binl, binr]=...
-    KDE_makeraindist_i_station(prcp1, prcp2); 
-[shift_w1,inc_w1,err_w1,dpamt1,pamtshift,pamtinc,pamtshiftinc,dppdf1,ppdfshift,ppdfinc,ppdfshiftinc,dfreq,dfreqshift,dfreqinc,dfreqshiftinc]=makeshiftinc_stations...
-    (kdeppdf1(:), kdepamt1(:), kdeppdf2(:), kdepamt2(:),dt_noaa,bincrates);
-load ([path,'stations_uncertainty_range_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),'_',...
-    num2str(period2(1)),num2str(period2(end)),'.mat']);
-save([path,'stations_uncertainty_range_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),'_',...
-    num2str(period2(1)),num2str(period2(end)),'.mat'],'UR_pamt1', 'UR_ppdf1', 'UR_dpamt1', 'UR_pamtshiftinc', 'UR_dppdf1',...
-    'UR_ppdfshiftinc','UR_dfreq', 'UR_dfreqshiftinc','UR_shift', 'UR_inc', 'UR_err', 'UR_a_o', 'UR_b_o',...
-    'shift_w1','inc_w1','err_w1');
-
-
-
-%%  bootstrap sampling curves (this can be merge with last step and
-% % calculated together
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %% use bootstrapping to calculate uncertainty range (epoch length = 30 years)
+% % For epoch length of 20 years, users need to change the values of the
+% % follwing variables as:
+% % thelength=20; startyear=1955:5:1980; endyear=1998:5:2023
+% % For epoch length of 10 years, users need to change the values of the
+% % follwing variables as:
+% % thelength=10; startyear=1980:5:1995; endyear=2014:-5:1999
+% clear
+% path='/share/cliprelabs/jh2423/P1/dataforplot/'; % the path saved data for plotting
+% missrate=20; % set acceptable miss rate 
+% thelength=30;
+% for startyear= 1955:1964 % startyear: latest start year
+%     for endyear=2023:-1:2014 % endyear: earliest end year
+%         if startyear+thelength-1 < endyear-(thelength-1)
+%         disp(['startyear = ', num2str(startyear), ' endyear = ', num2str(endyear)]);
+%         period1=startyear:(startyear+thelength-1);
+%         period2=(endyear-thelength+1):endyear;
+%            answ = exist([path,'stations_uncertainty_range_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),'_',...
+%     num2str(period2(1)),num2str(period2(end)),'.mat']);
+%          if answ == 0 % 0 means the variable did not exit 
+%  
+%     load(['/share/cliprelabs/jh2423/P1/data_process/ghcnd_pr/','thinner_dailypr_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),'_',...
+%     num2str(period2(1)),num2str(period2(end)),'.mat'],...
+%     'finalsta_prcp','finalids','finallat','finallon','years','qclat', 'qclon');
+% 
+% 
+% % annual temperature anomaly from Noaa, Berkeley earth, GISTEMP v4
+% noaa_path='/share/cliprelabs/jh2423/P1/data_process/tas/aravg.ann.land_ocean.90S.90N.v6.0.0.202401.asc.txt';
+% berkeley_path='/share/cliprelabs/jh2423/P1/data_process/tas/global_land_and_ocean_annual_temp.txt';
+% GISS_path='/share/cliprelabs/jh2423/P1/data_process/tas/GLB.Ts+dSST.csv';
+% [dt_noaa,dt_berkeley, dt_gistemp ]=obs_temp_anomaly(noaa_path,berkeley_path, GISS_path,period1,period2);
+% 
+% 
+% %% bootstrap to get uncertainty range
 % [prcp1, prcp2]=extract_data(finalsta_prcp,years,period1,period2);
-% [CI_pamt1, CI_ppdf1, CI_dpamt1, CI_pamtshiftinc, CI_dppdf1, CI_ppdfshiftinc,CI_dfreq, CI_dfreqshiftinc]=...
-%     bootstrap_CI(prcp1, prcp2,500,dt_noaa);
-% save([folder,'/','stations_bootstrap_curves_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),'_',...
-%      num2str(period2(1)),num2str(period2(end)),'.mat'],'CI_pamt1', 'CI_ppdf1', ...
-%      'CI_dpamt1', 'CI_pamtshiftinc', 'CI_dppdf1', 'CI_ppdfshiftinc','CI_dfreq', ...
-%      'CI_dfreqshiftinc');
-
-         end
-         end
-    end
-end
-
-%% save all 30-years pair uncertainty range in one netcdf file
-clearvars -except period1 period2 path
-missrate=20;
-thelength = 30;
-all_startyears=1955:1964; % startyear: latest start year
-all_endyears=2014:2023; % endyear: earliest end year
-startycount = 0; 
-count = 0;
-ncfile = [path,'stations_uncertainty_ranges_',num2str(missrate),'%miss_',num2str(thelength),'yrs.nc']; % Define output NetCDF file
-if isfile(ncfile)
-    delete(ncfile);
-end
-
-for startyear = all_startyears 
-    startycount = startycount + 1;
-    for endyear = all_endyears(startycount):all_endyears(end)
-        count = count + 1;
-
-        % Define periods
-        period1 = startyear:(startyear+thelength-1);
-        period2 = (endyear-thelength+1):endyear;
-
-        % Load .mat file
-        matfile = [path,'stations_uncertainty_ranges_',num2str(missrate),'%miss_', ...
-            num2str(period1(1)), num2str(period1(end)), '_', ...
-            num2str(period2(1)), num2str(period2(end)), '.mat'];
-        S = load(matfile); % contains UR_inc and UR_shift
-
-        % Generate unique names for NetCDF variables
-        varname_inc   = sprintf('UR_inc_%d_%d_%d_%d', period1(1), period1(end), period2(1), period2(end));
-        varname_shift = sprintf('UR_shift_%d_%d_%d_%d', period1(1), period1(end), period2(1), period2(end));
-
-        % Write UR_inc
-        data = single(S.UR_inc); % reduce size
-        nccreate(ncfile, varname_inc, 'Dimensions', {varname_inc, length(data)});
-        ncwrite(ncfile, varname_inc, data);
-
-        % Write UR_shift
-        data = single(S.UR_shift);
-        nccreate(ncfile, varname_shift, 'Dimensions', {varname_shift, length(data)});
-        ncwrite(ncfile, varname_shift, data);
-    end
-end
-
-%% 19551984_19942023
-clear
-period1=1955:1984;
-period2=1994:2023;
-missrate=20;
-path='/share/cliprelabs/jh2423/P1/dataforplot/'; % the path saved data for plotting
-filename=[path,'stations_uncertainty_range_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),...
-    '_',num2str(period2(1)),num2str(period2(end)),'.mat'];
-fileinfo=matfile(filename);
-ncfile=([path,'stations_uncertainty_range_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),...
-    '_',num2str(period2(1)),num2str(period2(end)),'.nc']);
-vars = who(fileinfo);
-for i = 1:length(vars) % Loop through variables and load them one by one
-    varname = vars{i};       
-    tmp = load(filename, varname); % Load the variable into current workspace  
-    data = tmp.(varname); % Extract the variable by its name
-    data = single(data);
-    dim=size(data);
-    nccreate(ncfile, varname,'Dimensions',{[varname,'_row'], dim(1),[varname,'_col'],dim(2)});
-    ncwrite(ncfile, varname,data);    
-    
-end
+% tic
+% [UR_pamt1, UR_ppdf1, UR_dpamt1, UR_pamtshiftinc, UR_dppdf1, UR_ppdfshiftinc,UR_dfreq, UR_dfreqshiftinc,...
+%     UR_shift, UR_inc, UR_err, UR_a_o, UR_b_o]=...
+%     bootstrap_UR(prcp1, prcp2,500,dt_noaa);
+% toc
+% UR_a_o = UR_a_o./dt_noaa;
+% UR_b_o = UR_b_o./dt_noaa;
+% save([path,'stations_uncertainty_range_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),'_',...
+%     num2str(period2(1)),num2str(period2(end)),'.mat'],'UR_pamt1', 'UR_ppdf1', 'UR_dpamt1', 'UR_pamtshiftinc', 'UR_dppdf1',...
+%     'UR_ppdfshiftinc','UR_dfreq', 'UR_dfreqshiftinc','UR_shift', 'UR_inc', 'UR_err', 'UR_a_o', 'UR_b_o');
+% clear qc_prcp pnz
+% 
+% 
+% %% add shi inc err of aggregated stations for each epoch pair
+% % Shift and increase modes using ksdensity-- Way1
+% % Smoothed (P2) – Smoothed (P1)
+% [prcp1, prcp2]=extract_data(finalsta_prcp,years,period1,period2);
+% [kdeppdf1, kdepamt1, kdeppdf2, kdepamt2, bincrates, binl, binr]=...
+%     KDE_makeraindist_i_station(prcp1, prcp2); 
+% [shift_w1,inc_w1,err_w1,dpamt1,pamtshift,pamtinc,pamtshiftinc,dppdf1,ppdfshift,ppdfinc,ppdfshiftinc,dfreq,dfreqshift,dfreqinc,dfreqshiftinc]=makeshiftinc_stations...
+%     (kdeppdf1(:), kdepamt1(:), kdeppdf2(:), kdepamt2(:),dt_noaa,bincrates);
+% load ([path,'stations_uncertainty_range_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),'_',...
+%     num2str(period2(1)),num2str(period2(end)),'.mat']);
+% save([path,'stations_uncertainty_range_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),'_',...
+%     num2str(period2(1)),num2str(period2(end)),'.mat'],'UR_pamt1', 'UR_ppdf1', 'UR_dpamt1', 'UR_pamtshiftinc', 'UR_dppdf1',...
+%     'UR_ppdfshiftinc','UR_dfreq', 'UR_dfreqshiftinc','UR_shift', 'UR_inc', 'UR_err', 'UR_a_o', 'UR_b_o',...
+%     'shift_w1','inc_w1','err_w1');
+% 
+% 
+% 
+% 
+%          end
+%          end
+%     end
+% end
+% 
+% %% save all 30-years pair uncertainty range in one netcdf file
+% clearvars -except period1 period2 path
+% missrate=20;
+% thelength = 30;
+% all_startyears=1955:1964; % startyear: latest start year
+% all_endyears=2014:2023; % endyear: earliest end year
+% startycount = 0; 
+% count = 0;
+% ncfile = [path,'stations_uncertainty_ranges_',num2str(missrate),'%miss_',num2str(thelength),'yrs.nc']; % Define output NetCDF file
+% if isfile(ncfile)
+%     delete(ncfile);
+% end
+% 
+% for startyear = all_startyears 
+%     startycount = startycount + 1;
+%     for endyear = all_endyears(startycount):all_endyears(end)
+%         count = count + 1;
+% 
+%         % Define periods
+%         period1 = startyear:(startyear+thelength-1);
+%         period2 = (endyear-thelength+1):endyear;
+% 
+%         % Load .mat file
+%         matfile = [path,'stations_uncertainty_ranges_',num2str(missrate),'%miss_', ...
+%             num2str(period1(1)), num2str(period1(end)), '_', ...
+%             num2str(period2(1)), num2str(period2(end)), '.mat'];
+%         S = load(matfile); % contains UR_inc and UR_shift
+% 
+%         % Generate unique names for NetCDF variables
+%         varname_inc   = sprintf('UR_inc_%d_%d_%d_%d', period1(1), period1(end), period2(1), period2(end));
+%         varname_shift = sprintf('UR_shift_%d_%d_%d_%d', period1(1), period1(end), period2(1), period2(end));
+% 
+%         % Write UR_inc
+%         data = single(S.UR_inc); % reduce size
+%         nccreate(ncfile, varname_inc, 'Dimensions', {varname_inc, length(data)});
+%         ncwrite(ncfile, varname_inc, data);
+% 
+%         % Write UR_shift
+%         data = single(S.UR_shift);
+%         nccreate(ncfile, varname_shift, 'Dimensions', {varname_shift, length(data)});
+%         ncwrite(ncfile, varname_shift, data);
+%     end
+% end
+% 
+% %% 19551984_19942023
+% clear
+% period1=1955:1984;
+% period2=1994:2023;
+% missrate=20;
+% path='/share/cliprelabs/jh2423/P1/dataforplot/'; % the path saved data for plotting
+% filename=[path,'stations_uncertainty_range_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),...
+%     '_',num2str(period2(1)),num2str(period2(end)),'.mat'];
+% fileinfo=matfile(filename);
+% ncfile=([path,'stations_uncertainty_range_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),...
+%     '_',num2str(period2(1)),num2str(period2(end)),'.nc']);
+% vars = who(fileinfo);
+% for i = 1:length(vars) % Loop through variables and load them one by one
+%     varname = vars{i};       
+%     tmp = load(filename, varname); % Load the variable into current workspace  
+%     data = tmp.(varname); % Extract the variable by its name
+%     data = single(data);
+%     dim=size(data);
+%     nccreate(ncfile, varname,'Dimensions',{[varname,'_row'], dim(1),[varname,'_col'],dim(2)});
+%     ncwrite(ncfile, varname,data);    
+%     
+% end
