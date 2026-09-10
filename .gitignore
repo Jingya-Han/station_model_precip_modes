@@ -18,3 +18,9 @@ revision_v1/run01_repeat_fig2.m
 revision_v1/testingbensidea.m
 revision_v1/way1_cmip6_im_ien_20%miss_19551984_19942023.mat
 .mat
+station_model_precip_modes-1.0.tar.gz
+update_modes_each_year/ghcnd_pr/
+update_modes_each_year/run00_process_ghcnd_update.m
+update_modes_each_year/run01_cal_modes_in_stations_2024.m
+update_modes_each_year/run02_cal_modes_in_MMM_2024.m
+update_modes_each_year/run03_calc_CI_cmip_2024.m
