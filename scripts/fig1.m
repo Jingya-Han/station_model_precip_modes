@@ -1,5 +1,5 @@
 %%  Fig. 1: Global precipitation amount distributions for stations and models
-% 1 September 2025, Jingya Han, Cornell University, Ithaca, NY. jh2423@cornell.edu
+% 1 September 2026, Jingya Han, Cornell University, Ithaca, NY. jh2423@cornell.edu
 % You might need to change the path of netCDF files for your use
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
