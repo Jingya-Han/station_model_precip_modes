@@ -27,4 +27,9 @@ update_modes_each_year/run03_calc_CI_cmip_2024.m
 data_process/ghcnd_pr/reo_ghcnddailydata_19552023.mat
 data_process/ghcnd_pr/thinner_dailypr_20%miss_19551984_19872016.mat
 data_process/ghcnd_pr/thinner_dailypr_20%miss_19551984_19952024.mat
-
+dataforplot/stations_modes_spatial_dist_20%miss_19551984_19872016.nc
+dataforplot/stations_uncertainty_range_20%miss_19551984_19872016.mat
+dataforplot/stations_uncertainty_range_20%miss_19551984_19872016.nc
+dataforplot/stationslatlon19552016.nc
+dataforplot/way1_stations_20%miss_19551984_19872016.mat
+dataforplot/way1_stations_20%miss_19551984_19872016.nc
