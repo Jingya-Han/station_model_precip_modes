@@ -24,3 +24,7 @@ update_modes_each_year/run00_process_ghcnd_update.m
 update_modes_each_year/run01_cal_modes_in_stations_2024.m
 update_modes_each_year/run02_cal_modes_in_MMM_2024.m
 update_modes_each_year/run03_calc_CI_cmip_2024.m
+data_process/ghcnd_pr/reo_ghcnddailydata_19552023.mat
+data_process/ghcnd_pr/thinner_dailypr_20%miss_19551984_19872016.mat
+data_process/ghcnd_pr/thinner_dailypr_20%miss_19551984_19952024.mat
+
