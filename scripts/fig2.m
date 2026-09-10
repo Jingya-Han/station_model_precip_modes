@@ -1,13 +1,21 @@
 %% Fig. 2: Changes in the precipitation amount distribution from 1955–1984 to 1994–2023.
-% 1 September 2025, Jingya Han, Cornell University, Ithaca, NY. jh2423@cornell.edu
+% September 2026, Jingya Han, Cornell University, Ithaca, NY. jh2423@cornell.edu
 % You might need to change the path of netCDF files for your use
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clear
+% Science Advances figure standards:
+%   2-column width 18.4 cm; max depth 19.9 cm
+%   panel letters 9 pt bold capitals; all other type 8 pt sans serif (6 pt min)
+%   line weights >= 0.28 pt; SI units
+fn  = 'Arial'; % sans serif equivalent of Myriad, accepted by the guidelines
+fs  = 8;   % labels, ticks, legends
+fsp = 9;   % panel letters, bold
+
 period1 = 1955:1984;
 period2 = 1994:2023;
 missrate=20;
-path='/share/cliprelabs/jh2423/P1/dataforplot/';
+path='\\wsl.localhost\ubuntu\home\jingya\station_model_precip_modes\dataforplot\';
 
 % preliminary items
 KDEMMMpamt1=ncread([path,'way1_MMM_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),...
@@ -52,6 +60,10 @@ UR_pamtshiftinc=ncread([path,'stations_uncertainty_range_',num2str(missrate),'%m
 UR_pamt1=ncread([path,'stations_uncertainty_range_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),...
     '_',num2str(period2(1)),num2str(period2(end)),'.nc'],'UR_pamt1');
 db=(bincrates(3)-bincrates(2))./bincrates(2);% bin width
+% panels A and B start at 0.1 mm/day, the reporting resolution of GHCNd:
+% below that the archive cannot resolve a non-zero value
+x01=interp1(bincrates,1:length(bincrates),0.1);
+xhi=130; % as before: drop the last few bins, where little should be happening
 
 % colors 
 stationobscolor=[0 0 0]/255;
@@ -70,8 +82,8 @@ xticks(isnan(xticks))=[];
 
 f=figure;clf
 set(gcf,'units','centimeters','paperpositionmode','auto');
-set(gcf,'position',[1 1 18 15]); 
-set(f,'Color','white');
+set(gcf,'position',[1 1 18.4 15]); 
+set(f,'Color','white','Renderer','painters');
 left=0.07; down= .55;width= .42;he= .4;
 poss=[left down width he;
 left+0.5 down width he;
@@ -92,16 +104,17 @@ h2=fill([x; flipud(x)], [dpamtshiftinc_Lower; flipud(dpamtshiftinc_Upper)],...
     stationspicolor,'FaceAlpha', 0.2, 'EdgeColor', 'none');
 hold on;
 % plot the line
-h3=dpamtplot(dpamt1(:),stationobscolor,(pamtshiftinc(:)-kdepamt1(:))*1./db,stationspicolor,xticks,xtickratesp);
+h3=dpamtplot(dpamt1(:),stationobscolor,(pamtshiftinc(:)-kdepamt1(:))*1./db,stationspicolor,xticks,xtickratesp,x01,xhi,fn,fs);
 hold on;
 l1 = legend([h3(1) h3(2) h1 h2], ['Station observations' newline], ...
     ['Increase = ', num2str(round(inc_w1,2)), '% K^{-1}', newline, ...
      'Shift = ', num2str(round(shift_w1,2)), '% K^{-1}'],...
-     '95% CI (Station)','95% CI (Increase+Shift modes)','FontName','Arial','FontSize',9);
+     '95% CI (Station)','95% CI (Increase+Shift modes)','FontName',fn,'FontSize',fs);
 set(l1,'box','off','Position',[0.14 0.75 0.19 0.2]); hold on;
-text(21,0.085,['Error = ' num2str(err_w1,2),'%'],'FontName','Arial','FontSize',9);
-ylabel('\DeltaP (mm d ^-^1 K ^-^1)','FontName','Arial','FontSize',9);% If you wanted to be precise, the y-axis label is in mm/d/K/\Delta bin
-text(8,0.23,'a','FontName','Arial','FontSize',9,'FontWeight','bold');
+text(0.52,0.44,['Error = ' num2str(err_w1,2),'%'],'Units','normalized', ...
+    'FontName',fn,'FontSize',fs);
+ylabel('\DeltaP (mm d ^-^1 K ^-^1)','FontName',fn,'FontSize',fs);% If you wanted to be precise, the y-axis label is in mm/d/K/\Delta bin
+text(0.03,0.95,'A','Units','normalized','FontName',fn,'FontSize',fsp,'FontWeight','bold');
 
 s=subplot(2,2,2); s.Position=poss(2,:);
 % Compute 95% confidence intervals
@@ -117,15 +130,16 @@ h2=fill([x; flipud(x)], [dpamtshiftinc_Lower; flipud(dpamtshiftinc_Upper)],...
     MMMspicolor,'FaceAlpha', 0.2, 'EdgeColor', 'none');
 hold on;
 % plot the line
-h3=dpamtplot(mmm_dpamt1(:),MMMsimcolor,(mmm_pamtshiftinc(:)-KDEMMMpamt1(:))*1./db,MMMspicolor,xticks,xtickratesp); 
+h3=dpamtplot(mmm_dpamt1(:),MMMsimcolor,(mmm_pamtshiftinc(:)-KDEMMMpamt1(:))*1./db,MMMspicolor,xticks,xtickratesp,x01,xhi,fn,fs); 
 l1 = legend([h3(1) h3(2) h1 h2], ['Climate models' newline], ...
     ['Increase = ', num2str(round(mmminc_w1,2)), '% K^{-1}', newline, ...
      'Shift = ', num2str(round(mmmshift_w1,2)), '% K^{-1}'],...
-     '95% CI (Model)','95% CI (Increase+Shift modes)','FontName','Arial','FontSize',9);
+     '95% CI (Model)','95% CI (Increase+Shift modes)','FontName',fn,'FontSize',fs);
 set(l1,'box','off','Position',[0.2+width 0.75 0.19 0.2]);
-text(21,0.085,['Error = ' num2str(mmmerr_w1,2),'%'],'FontName','Arial','FontSize',9);
-ylabel('\DeltaP (mm d ^-^1 K ^-^1)','FontName','Arial','FontSize',9);% If you wanted to be precise, the y-axis label is in mm/d/K/\Delta bin
-text(8,0.23,'b','FontWeight','bold','FontSize',9);
+text(0.52,0.44,['Error = ' num2str(mmmerr_w1,2),'%'],'Units','normalized', ...
+    'FontName',fn,'FontSize',fs);
+ylabel('\DeltaP (mm d ^-^1 K ^-^1)','FontName',fn,'FontSize',fs);% If you wanted to be precise, the y-axis label is in mm/d/K/\Delta bin
+text(0.03,0.95,'B','Units','normalized','FontName',fn,'FontSize',fsp,'FontWeight','bold');
 
 %% plot the box plots
 s=subplot(2,2,3); s.Position=poss(3,:); 
@@ -212,44 +226,42 @@ end
 
 % Customize axes
 clear xticks;
-set(gca,'fontsize',9,'FontName','Arial');
+set(gca,'fontsize',fs,'FontName',fn);
 set(gca,'xtick',[1.5 3.5],'xticklabel',{'Increase mode', 'Shift mode'},...
-    'fontsize',9,'FontName','Arial','XTickLabelRotation',0);
+    'fontsize',fs,'FontName',fn,'XTickLabelRotation',0);
 
 xlim([0 5]);
 ylim([-1.5 18]);
-ylabel('Magnitude of modes (% K ^-^1)', 'fontsize',9,'FontName','Arial');
+ylabel('Magnitude of modes (% K ^-^1)', 'fontsize',fs,'FontName',fn);
 box on;
-text(0.2,16,'c','FontWeight','bold','fontsize',9,'FontName','Arial');
-legend('','Station observations','','Climate models','','','','','fontsize',9,'FontName','Arial'); legend('boxoff');
+text(0.03,0.95,'C','Units','normalized','FontWeight','bold','FontName',fn,'FontSize',fsp);
+legend('','Station observations','','Climate models','','','','','fontsize',fs,'FontName',fn); legend('boxoff');
 
-savefig('/share/cliprelabs/jh2423/P1/figures/Fig2.fig');
-exportgraphics(gcf,"/share/cliprelabs/jh2423/P1/figures/Fig2.png",...
-    'Resolution', 300);
+savefig('\\wsl.localhost\Ubuntu\home\jingya\station_model_precip_modes\figures\Fig2.fig');
+exportgraphics(gcf,"\\wsl.localhost\Ubuntu\home\jingya\station_model_precip_modes\figures\Fig2.pdf",...
+    'ContentType','vector','BackgroundColor','white'); % .pdf vector is the preferred format
+exportgraphics(gcf,"\\wsl.localhost\Ubuntu\home\jingya\station_model_precip_modes\figures\Fig2.png",...
+    'Resolution', 600); % png fallback; 600 dpi is the ceiling before downsampling
 
-% % pdf version
-% addpath(genpath('C:\Program Files\MATLAB\altmany-export_fig-d5538e9'));
-% export_fig(gcf,'-eps', '-r300', '-painters', '\\wsl.localhost\Ubuntu\home\jingya\station_model_precip_modes\figures\Fig2.eps');
-% export_fig(gcf,'-pdf', '-r300', '-painters', '\\wsl.localhost\Ubuntu\home\jingya\station_model_precip_modes\figures\Fig2.pdf');
 
 %% plotting functions 
-    function [p]=dpamtplot(dpamt1,color1,dpamt2,color2,xticks,xtickratesp)
+    function [p]=dpamtplot(dpamt1,color1,dpamt2,color2,xticks,xtickratesp,x01,xhi,fn,fs)
         % plot the change in rain amount distribution.  two curves in two
         % different colors.  
         nb=length(dpamt1);
         p=plot(1:nb,dpamt1,'-k',1:nb,dpamt2,'-r');
-        set(gca,'fontsize',8,'FontName','Arial');
+        set(gca,'fontsize',fs,'FontName',fn);
         set(p(1),'color',color1)
         set(p(2),'color',color2)
         set(p,'linewidth',1.2)
-        
-        l=line([0 130],[0 0]);set(l,'color',[1 1 1]*.5) % add a zero line 
+
+        l=line([0 xhi],[0 0]);set(l,'color',[1 1 1]*.5) % add a zero line
         ylim([-.02 0.25]); % choose y-axes
-        xlim([4 130]) % exclude the zero bin and also the last few, where little should be happening. 
+        xlim([x01 xhi]) % start at 0.1 mm/day, drop the last few bins
         set(gca,'xtick',xticks,'xticklabel',xtickratesp,'XTickLabelRotation',0) % make x-axes show rain rate in mm/d
-        
+
         %  ylabel('\DeltaRain amount (mm/d/K)');% If you wanted to be precise, the y-axis label is in mm/d/K/\Delta bin
-        xlabel('Precipitation rate (mm d ^-^1)','fontsize',9,'FontName','Arial');
+        xlabel('Precipitation rate (mm d ^-^1)','FontName',fn,'FontSize',fs);
     end
 
     function []=dppdfplot(dppdf1,color1,dppdf2,color2,xticks,xtickratesp)
@@ -274,7 +286,7 @@ exportgraphics(gcf,"/share/cliprelabs/jh2423/P1/figures/Fig2.png",...
         t4=text(100,-0.13,[' ' num2str(100*dppdf2(1),2)],'horizontalalignment','left','verticalalignment','top','color',color2,'fontsize',10);
         
         %  ylabel('\DeltaFrequency (%/K)'); % If you wanted to be precise, the y-axis label is in mm/d/K/\Delta bin
-        xlabel('Precipitation rate (mm ^d)','fontsize',9,'FontName','Arial');
+        xlabel('Precipitation rate (mm ^d)','fontsize',fs,'FontName',fn);
                 
     end
 
@@ -313,6 +325,3 @@ exportgraphics(gcf,"/share/cliprelabs/jh2423/P1/figures/Fig2.png",...
         % ylabel('\DeltaRain rate (%/K)')
         xlabel('Percentile')
     end
-
-
-    
