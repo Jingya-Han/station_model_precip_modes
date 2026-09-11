@@ -5,8 +5,16 @@
 
 
 clear
+% Science Advances figure standards:
+%   2-column width 18.4 cm; max depth 19.9 cm
+%   all type 8 pt sans serif, 6 pt minimum
+%   line weights >= 0.28 pt; SI units
+fn  = 'Arial'; % sans serif equivalent of Myriad, accepted by the guidelines
+fs  = 8;   % titles, row labels, legend
+fsl = 7;   % y tick labels in these small panels, still above the 6 pt minimum
+
 % load data
-missrate=19; % set acceptable miss rate 
+missrate=20; % set acceptable miss rate (the filenames below hardcode 20%miss)
 thelength=30;
 folder='\\wsl.localhost\ubuntu\home\jingya\station_model_precip_modes\dataforplot\';
 all_endyears=2014:2023; % endyear: earliest end year
@@ -15,32 +23,34 @@ count = 0;
 results_med=[];
 f=figure; clf
 set(gcf,'units','centimeters','paperpositionmode','auto');
-set(f,'Color','white'); 
-set(gcf,'position',[1 1 27 16]); 
-left=.08; down=.85; wid=.065; he=.075;
+set(f,'Color','white','Renderer','painters');
+set(gcf,'position',[1 1 18.4 18.5]); % 2 columns wide, within the 19.9 cm depth
+left=.075; down=.85; wid=.065; he=.07;
+gapx=.012; % horizontal gap: the columns are widened to the full canvas so the
+           % year labels above them have room
 poss=nan(100,4); % 3rd: left down wid he for each subplot
 
 for isub=1:100
     if isub<=10
-        poss(isub,1)=left+(isub-1)*(wid+0.01); poss(isub,2)=down; poss(isub,3)=wid; poss(isub,4)=he;
+        poss(isub,1)=left+(isub-1)*(wid+gapx); poss(isub,2)=down; poss(isub,3)=wid; poss(isub,4)=he;
     elseif isub>=11 && isub<=20  
-        poss(isub,1)=left+(isub-10-1)*(wid+0.01); poss(isub,2)=down-1*(he+0.01); poss(isub,3)=wid; poss(isub,4)=he;
+        poss(isub,1)=left+(isub-10-1)*(wid+gapx); poss(isub,2)=down-1*(he+0.01); poss(isub,3)=wid; poss(isub,4)=he;
     elseif isub>=21 && isub<=30  
-        poss(isub,1)=left+(isub-20-1)*(wid+0.01); poss(isub,2)=down-2*(he+0.01); poss(isub,3)=wid; poss(isub,4)=he;
+        poss(isub,1)=left+(isub-20-1)*(wid+gapx); poss(isub,2)=down-2*(he+0.01); poss(isub,3)=wid; poss(isub,4)=he;
     elseif isub>=31 && isub<=40  
-        poss(isub,1)=left+(isub-30-1)*(wid+0.01); poss(isub,2)=down-3*(he+0.01); poss(isub,3)=wid; poss(isub,4)=he;
+        poss(isub,1)=left+(isub-30-1)*(wid+gapx); poss(isub,2)=down-3*(he+0.01); poss(isub,3)=wid; poss(isub,4)=he;
     elseif isub>=41 && isub<=50  
-        poss(isub,1)=left+(isub-40-1)*(wid+0.01); poss(isub,2)=down-4*(he+0.01); poss(isub,3)=wid; poss(isub,4)=he;
+        poss(isub,1)=left+(isub-40-1)*(wid+gapx); poss(isub,2)=down-4*(he+0.01); poss(isub,3)=wid; poss(isub,4)=he;
     elseif isub>=51 && isub<=60  
-        poss(isub,1)=left+(isub-50-1)*(wid+0.01); poss(isub,2)=down-5*(he+0.01); poss(isub,3)=wid; poss(isub,4)=he;
+        poss(isub,1)=left+(isub-50-1)*(wid+gapx); poss(isub,2)=down-5*(he+0.01); poss(isub,3)=wid; poss(isub,4)=he;
     elseif isub>=61 && isub<=70  
-        poss(isub,1)=left+(isub-60-1)*(wid+0.01); poss(isub,2)=down-6*(he+0.01); poss(isub,3)=wid; poss(isub,4)=he;
+        poss(isub,1)=left+(isub-60-1)*(wid+gapx); poss(isub,2)=down-6*(he+0.01); poss(isub,3)=wid; poss(isub,4)=he;
     elseif isub>=71 && isub<=80  
-        poss(isub,1)=left+(isub-70-1)*(wid+0.01); poss(isub,2)=down-7*(he+0.01); poss(isub,3)=wid; poss(isub,4)=he;
+        poss(isub,1)=left+(isub-70-1)*(wid+gapx); poss(isub,2)=down-7*(he+0.01); poss(isub,3)=wid; poss(isub,4)=he;
     elseif isub>=81 && isub<=90  
-        poss(isub,1)=left+(isub-80-1)*(wid+0.01); poss(isub,2)=down-8*(he+0.01); poss(isub,3)=wid; poss(isub,4)=he;
+        poss(isub,1)=left+(isub-80-1)*(wid+gapx); poss(isub,2)=down-8*(he+0.01); poss(isub,3)=wid; poss(isub,4)=he;
     elseif isub>=91 && isub<=100  
-        poss(isub,1)=left+(isub-90-1)*(wid+0.01); poss(isub,2)=down-9*(he+0.01); poss(isub,3)=wid; poss(isub,4)=he;
+        poss(isub,1)=left+(isub-90-1)*(wid+gapx); poss(isub,2)=down-9*(he+0.01); poss(isub,3)=wid; poss(isub,4)=he;
 
     end
 end
@@ -103,8 +113,8 @@ results_med(:,count)=mediv;
 
 if count<=10
    s=subplot(10,10,count); s.Position=poss(count,:);
-   title([num2str(period2(1)),' - ',num2str(period2(end))],'FontWeight','normal',...
-       'FontName','Arial','FontSize',9);
+   title([num2str(period2(1)),'-',num2str(period2(end))],'FontWeight','normal',...
+       'FontName',fn,'FontSize',fs);
 elseif count>10 && count<=19
     s=subplot(10,10,count+1); s.Position=poss(count+1,:);
 elseif count>19 && count<=27
@@ -159,45 +169,57 @@ yticks('auto')
 yticklabels({})
 
 ax = gca; % Get current axes
-ax.YAxis.FontSize = 7; % Set the font size for the y-axis tick labels
+ax.FontName = fn;
+ax.YAxis.FontSize = fsl; % Set the font size for the y-axis tick labels
+ax.XAxis.FontSize = fsl;
 box on;
 
 
 if count==1
-   text(s.Position(1)-0.4,s.Position(2),[num2str(period1(1)),' - ',num2str(period1(end))],'Rotation',90,'FontSize',10);
+   text(-0.60,0.5,[num2str(period1(1)),'-',num2str(period1(end))],'Units','normalized',...
+       'Rotation',90,'HorizontalAlignment','center','FontName',fn,'FontSize',fs);
    xticklabels({'I', 'S' });
-   ylabel('%/K','FontName','Arial','fontsize',9);
+   ylabel('% K^-^1','FontName',fn,'fontsize',fs);
    yticks([0 4 8 12 16]);
    yticklabels({'0','','8','','16'});
-   legend({'','Model','','Station','','','','','',''},'FontName','Arial','fontsize',9);
+   legend({'','Model','','Station','','','','','',''},'FontName',fn,'fontsize',fs);
    legend('boxoff');
 
 elseif count==11
-    text(s.Position(1)-0.4,s.Position(2),[num2str(period1(1)),' - ',num2str(period1(end))],'Rotation',90,'FontSize',9);
+    text(-0.60,0.5,[num2str(period1(1)),'-',num2str(period1(end))],'Units','normalized',...
+       'Rotation',90,'HorizontalAlignment','center','FontName',fn,'FontSize',fs);
    xticklabels({'I', 'S' });
 elseif count==20
-    text(s.Position(1)-0.4,s.Position(2),[num2str(period1(1)),' - ',num2str(period1(end))],'Rotation',90,'FontSize',9);
+    text(-0.60,0.5,[num2str(period1(1)),'-',num2str(period1(end))],'Units','normalized',...
+       'Rotation',90,'HorizontalAlignment','center','FontName',fn,'FontSize',fs);
     xticklabels({'I', 'S' });
 elseif count==28
-   text(s.Position(1)-0.4,s.Position(2),[num2str(period1(1)),' - ',num2str(period1(end))],'Rotation',90,'FontSize',9);
+   text(-0.60,0.5,[num2str(period1(1)),'-',num2str(period1(end))],'Units','normalized',...
+       'Rotation',90,'HorizontalAlignment','center','FontName',fn,'FontSize',fs);
     xticklabels({'I', 'S' });
 elseif count==35
-   text(s.Position(1)-0.4,s.Position(2),[num2str(period1(1)),' - ',num2str(period1(end))],'Rotation',90,'FontSize',9);
+   text(-0.60,0.5,[num2str(period1(1)),'-',num2str(period1(end))],'Units','normalized',...
+       'Rotation',90,'HorizontalAlignment','center','FontName',fn,'FontSize',fs);
     xticklabels({'I', 'S' });
 elseif count==41
-   text(s.Position(1)-0.4,s.Position(2),[num2str(period1(1)),' - ',num2str(period1(end))],'Rotation',90,'FontSize',9);
+   text(-0.60,0.5,[num2str(period1(1)),'-',num2str(period1(end))],'Units','normalized',...
+       'Rotation',90,'HorizontalAlignment','center','FontName',fn,'FontSize',fs);
     xticklabels({'I', 'S' });
 elseif count==46
-   text(s.Position(1)-0.4,s.Position(2),[num2str(period1(1)),' - ',num2str(period1(end))],'Rotation',90,'FontSize',9);
+   text(-0.60,0.5,[num2str(period1(1)),'-',num2str(period1(end))],'Units','normalized',...
+       'Rotation',90,'HorizontalAlignment','center','FontName',fn,'FontSize',fs);
     xticklabels({'I', 'S' });
 elseif count==50
-   text(s.Position(1)-0.4,s.Position(2),[num2str(period1(1)),' - ',num2str(period1(end))],'Rotation',90,'FontSize',9);
+   text(-0.60,0.5,[num2str(period1(1)),'-',num2str(period1(end))],'Units','normalized',...
+       'Rotation',90,'HorizontalAlignment','center','FontName',fn,'FontSize',fs);
     xticklabels({'I', 'S' });
 elseif count==53
-   text(s.Position(1)-0.4,s.Position(2),[num2str(period1(1)),' - ',num2str(period1(end))],'Rotation',90,'FontSize',9);
+   text(-0.60,0.5,[num2str(period1(1)),'-',num2str(period1(end))],'Units','normalized',...
+       'Rotation',90,'HorizontalAlignment','center','FontName',fn,'FontSize',fs);
     xticklabels({'I', 'S' });
 elseif count==55
-   text(s.Position(1)-0.4,s.Position(2),[num2str(period1(1)),' - ',num2str(period1(end))],'Rotation',90,'FontSize',9);
+   text(-0.60,0.5,[num2str(period1(1)),'-',num2str(period1(end))],'Units','normalized',...
+       'Rotation',90,'HorizontalAlignment','center','FontName',fn,'FontSize',fs);
     xticklabels({'I', 'S' });
 end
 disp([num2str(period2(1)),' - ',num2str(period2(end))])
@@ -211,18 +233,15 @@ medianpairs=median(results_med,2)   % median among pairs
 end
 
 savefig('\\wsl.localhost\Ubuntu\home\jingya\station_model_precip_modes\figures\figS4.fig');
-exportgraphics(gcf,"\\wsl.localhost\Ubuntu\home\jingya\station_model_precip_modes\figures\figS4.png",...
-    'Resolution', 600); % png fallback; 600 dpi is the ceiling before downsampling
 exportgraphics(gcf,"\\wsl.localhost\Ubuntu\home\jingya\station_model_precip_modes\figures\figS4.pdf",...
     'ContentType','vector','BackgroundColor','white'); % .pdf vector is the preferred format
+exportgraphics(gcf,"\\wsl.localhost\Ubuntu\home\jingya\station_model_precip_modes\figures\figS4.png",...
+    'Resolution', 600); % png fallback; 600 dpi is the ceiling before downsampling
 
 % % pdf version
 % addpath(genpath('C:\Program Files\MATLAB\altmany-export_fig-d5538e9'));
 % export_fig(gcf,'-eps', '-r300', '-painters', '\\wsl.localhost\Ubuntu\home\jingya\station_model_precip_modes\figures\Figs3.eps');
 % export_fig(gcf,'-pdf', '-r300', '-painters', '\\wsl.localhost\Ubuntu\home\jingya\station_model_precip_modes\figures\Figs3.pdf');
-
-
-
 
 
 % incrate_range(1,1)=prctile(incrate,2.5);
