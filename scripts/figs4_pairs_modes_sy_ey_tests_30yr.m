@@ -1,5 +1,5 @@
-%% Supplementary Figure 2: Pairs of the global magnitude of increase mode and shift mode over stations (purple) and co-located grids in models (green) with different start and end years.
-% 1 September 2025, Jingya Han, Cornell University, Ithaca, NY. jh2423@cornell.edu
+%% Supplementary Figure 4: Pairs of the global magnitude of increase mode and shift mode over stations (purple) and co-located grids in models (green) with different start and end years.
+% 1 September 2026, Jingya Han, Cornell University, Ithaca, NY. jh2423@cornell.edu
 % You might need to change the path of netCDF files for your use
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
