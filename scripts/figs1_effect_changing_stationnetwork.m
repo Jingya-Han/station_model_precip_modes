@@ -1,4 +1,5 @@
-%% hypothetical example of the effect of changing station network.
+%% Figure S1 hypothetical example of the effect of changing station network.
+% September 2026, Jingya Han, Cornell University, Ithaca, NY. jh2423@cornell.edu
 % calculate and compare 2 hypothetical distributions of rain, one at a station and one in a gridbox.
 % there are 2 types of precipitation: 
 %   1. large-scale precipitation covering all points with the same precipitation
@@ -65,7 +66,6 @@ end
 npts_p1=3; % number of points in the grid cell in epoch 1
 npts_p2=6; % number of points in the grid cell in epoch 2
 nsamp=10^7; % number of samples 
-nbins=100; % number of log-spaced bins
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 v=s.^2; % variance 
@@ -132,86 +132,96 @@ fprintf('\nsum(grid6 - grid3): frequency %.2e, amount %.2e\n', sum(dfreq), sum(d
 %% common layout, three panels wide
 % Wider left margins than a default subplot so the y labels clear the axes,
 % and a taller figure so the legends sit above the curves rather than on them.
-fs=8;
+% Science Advances figure standards:
+%   2-column width 18.4 cm; max depth 19.9 cm
+%   panel letters 9 pt bold capitals; all other type 8 pt sans serif (6 pt min)
+%   line weights >= 0.28 pt; sentence case for labels
+fn  = 'Arial'; % sans serif equivalent of Myriad, accepted by the guidelines
+fs  = 8;   % axis labels, ticks, titles
+fsl = 7;   % legends, kept smaller so they fit the narrow panels
+fsp = 9;   % panel letters, bold
+showfreq = false; % the frequency figure is not shown; skip it rather than
+                  % drawing and closing it
 poss=[0.085 0.20 0.245 0.68;
       0.405 0.20 0.245 0.68;
       0.725 0.20 0.245 0.68];
 grn=[0 0.5 0]; pur=[0.5 0 0.7];
 
 %% figure 1 -- frequency
+if showfreq
 figure;
 set(gcf,'units','centimeters','position',[1 1 18.4 7]);
-set(gcf,'Color','white');
+set(gcf,'Color','white','Renderer','painters');
 ax=gobjects(1,3);
 for k=1:3; ax(k)=subplot(1,3,k); ax(k).Position=poss(k,:); end
 
 axes(ax(1))
 p=plot(bins,fLS,'-',bins,fLoc,'--','LineWidth',1.2);
 p(1).Color=grn; p(2).Color=pur;
-headroom([fLS;fLoc]); ratetick(bins,fs);
-title('Generating dists','FontSize',fs)
-l=legend('Large scale','Local scale','Location','northeast','FontSize',fs-1); l.Box='off';
-ylabel('Precipitation frequency','FontSize',fs)
+headroom([fLS;fLoc]); ratetick(bins,fs,fn);
+title('Generating distributions','FontName',fn,'FontSize',fs,'FontWeight','normal')
+l=legend('Large scale','Local scale','Location','northeast','FontName',fn,'FontSize',fsl); l.Box='off';
+ylabel('Precipitation frequency','FontName',fn,'FontSize',fs)
 
 axes(ax(2))
 plot(bins,fPt,'k',bins,fG1,'r',bins,fG2,'b','LineWidth',1.2)
-headroom([fPt;fG1;fG2]); ratetick(bins,fs);
-title('Resulting dists','FontSize',fs)
+headroom([fPt;fG1;fG2]); ratetick(bins,fs,fn);
+title('Resulting distributions','FontName',fn,'FontSize',fs,'FontWeight','normal')
 l=legend('Station','Epoch 1 grid (3)','Epoch 2 grid (6)', ...
-    'Location','northeast','FontSize',fs-1); l.Box='off';
-ylabel('Precipitation frequency','FontSize',fs)
+    'Location','northeast','FontName',fn,'FontSize',fsl); l.Box='off';
+ylabel('Precipitation frequency','FontName',fn,'FontSize',fs)
 
 axes(ax(3))
 plot(bins,dfreq,'-','Color',[0.2 0.2 0.2],'LineWidth',1.2); hold on; box on
 yline(0,'-','Color',[.6 .6 .6]);
-symrange(dfreq); ratetick(bins,fs);
-title('Difference between Epoch 2 and Epoch 1','FontSize',fs)
-ylabel('\DeltaPrecipitation frequency','FontSize',fs)
-close % freq figure is not shown in main text
+symrange(dfreq); ratetick(bins,fs,fn);
+title('Epoch 2 minus epoch 1','FontName',fn,'FontSize',fs,'FontWeight','normal')
+ylabel('\DeltaPrecipitation frequency','FontName',fn,'FontSize',fs)
+end
 
 %% figure 2 -- amount
 figure;
 set(gcf,'units','centimeters','position',[1 1 18.4 7]);
-set(gcf,'Color','white');
+set(gcf,'Color','white','Renderer','painters');
 ax=gobjects(1,3);
 for k=1:3; ax(k)=subplot(1,3,k); ax(k).Position=poss(k,:); end
 
 axes(ax(1))
 p=plot(bins,aLS,'-',bins,aLoc,'--','LineWidth',1.2);
 p(1).Color=grn; p(2).Color=pur;
-headroom([aLS;aLoc]); ratetick(bins,fs);
-title('Generating dists','FontSize',fs)
-l=legend('Large scale','Local scale','Location','northeast','FontSize',fs-1); l.Box='off';
-ylabel('Precipitation amount (mm d^-^1)','FontSize',fs)
+headroom([aLS;aLoc]); ratetick(bins,fs,fn);
+title('Generating distributions','FontName',fn,'FontSize',fs,'FontWeight','normal')
+l=legend('Large scale','Local scale','Location','northeast','FontName',fn,'FontSize',fsl); l.Box='off';
+ylabel('Precipitation amount (mm d^-^1)','FontName',fn,'FontSize',fs)
 
 axes(ax(2))
 plot(bins,aPt,'k',bins,aG1,'r',bins,aG2,'b','LineWidth',1.2)
-headroom([aPt;aG1;aG2]); ratetick(bins,fs);
-title('Resulting dists','FontSize',fs)
+headroom([aPt;aG1;aG2]); ratetick(bins,fs,fn);
+title('Resulting distributions','FontName',fn,'FontSize',fs,'FontWeight','normal')
 l=legend('Station','Epoch 1 grid (3)','Epoch 2 grid (6)', ...
-    'Location','northeast','FontSize',fs-1); l.Box='off';
-ylabel('Precipitation amount (mm d^-^1)','FontSize',fs)
+    'Location','northeast','FontName',fn,'FontSize',fsl); l.Box='off';
+ylabel('Precipitation amount (mm d^-^1)','FontName',fn,'FontSize',fs)
 
 axes(ax(3))
 plot(bins,damt,'-','Color',[0.2 0.2 0.2],'LineWidth',1.2); hold on; box on
 yline(0,'-','Color',[.6 .6 .6]);
-symrange(damt); ratetick(bins,fs);
-title('Difference between Epoch 2 and Epoch 1','FontSize',fs)
-ylabel('\DeltaPrecipitation amount (mm d^-^1)','FontSize',fs)
+symrange(damt); ratetick(bins,fs,fn);
+title('Difference between Epoch 2 and Epoch 1','FontName',fn,'FontSize',fs,'FontWeight','normal')
+ylabel('\DeltaPrecipitation amount (mm d^-^1)','FontName',fn,'FontSize',fs)
 
 %% ------------------------------------------------------- panel labels
 lbl = {'A','B','C'};
 for k = 1:3
     text(ax(k), 0.035, 0.955, lbl{k}, 'Units','normalized', ...
-        'FontName','Arial','FontSize',10,'FontWeight','bold', ...
+        'FontName',fn,'FontSize',fsp,'FontWeight','bold', ...
         'HorizontalAlignment','left','VerticalAlignment','top');
 end
 
 savefig('\\wsl.localhost\Ubuntu\home\jingya\station_model_precip_modes\figures\figS1.fig');
-exportgraphics(gcf,"\\wsl.localhost\Ubuntu\home\jingya\station_model_precip_modes\figures\figS1.png",...
-    'Resolution', 600);
 exportgraphics(gcf,"\\wsl.localhost\Ubuntu\home\jingya\station_model_precip_modes\figures\figS1.pdf",...
     'ContentType','vector','BackgroundColor','white'); % .pdf vector is the preferred format
+exportgraphics(gcf,"\\wsl.localhost\Ubuntu\home\jingya\station_model_precip_modes\figures\figS1.png",...
+    'Resolution', 600); % png fallback; 600 dpi is the ceiling before downsampling
 
 %% ------------------------------------------------------------- helpers
 function [freq, amt] = raindist(x, edges, nbins)
@@ -231,7 +241,7 @@ function [freq, amt] = raindist(x, edges, nbins)
     amt  = accumarray(ib(ok), wet(ok), [nbins 1]) / n;
 end
 
-function ratetick(bins, fs)
+function ratetick(bins, fs, fn)
 % Label the x axis in mm/d, as Fig. 1 does. The plotted coordinate stays
 % log(rain rate) -- the bins are uniform in that coordinate -- but the ticks
 % are placed at round rain rates and only the decades carry a label, so the
@@ -243,9 +253,10 @@ function ratetick(bins, fs)
         lab{r==v} = num2str(v);
     end
     k = t>=min(bins) & t<=max(bins);
-    set(gca,'xtick',t(k),'xticklabel',lab(k),'XTickLabelRotation',0,'FontSize',fs);
+    set(gca,'xtick',t(k),'xticklabel',lab(k),'XTickLabelRotation',0,...
+        'FontName',fn,'FontSize',fs);
     xlim([min(bins) max(bins)]);
-    xlabel('Precipitation rate (mm d^-^1)','FontSize',fs);
+    xlabel('Precipitation rate (mm d^-^1)','FontName',fn,'FontSize',fs);
 end
 
 function headroom(y)
