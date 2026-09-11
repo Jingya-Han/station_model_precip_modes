@@ -1,9 +1,17 @@
-%%  Fig. 1: Map for stations excluding Russia
-% 12 April 2026, Jingya Han, Cornell University, Ithaca, NY. jh2423@cornell.edu
+%%  Fig. s3: Map for stations excluding Russia
+% Sept. 2026, Jingya Han, Cornell University, Ithaca, NY. jh2423@cornell.edu
 % You might need to change the path of netCDF files for your use
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% setup %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear
+% Science Advances figure standards:
+%   2-column width 18.4 cm; max depth 19.9 cm
+%   panel letters 9 pt bold capitals; all other type 8 pt sans serif (6 pt min)
+%   line weights >= 0.28 pt; SI units
+fn  = 'Arial'; % sans serif equivalent of Myriad, accepted by the guidelines
+fs  = 8;   % labels, ticks, legends
+fsp = 9;   % panel letters, bold
+
 period1=1955:1984;
 period2=1994:2023; %1995:2024;
 missrate=20;
@@ -38,8 +46,8 @@ load([path,'xRU_way1_MMM_',num2str(missrate),'%miss_',num2str(period1(1)),num2st
 
 f=figure; clf
 set(gcf,'units','centimeters','paperpositionmode','auto');
-set(gcf,'position',[1 1 18 16]); 
-set(f,'Color','white');
+set(gcf,'position',[1 1 18.4 16]);
+set(f,'Color','white','Renderer','painters');
 poss=[0.005 0.6 .8 .4;
     0.1 0.22 0.6 0.35];
 % plot station map
@@ -56,14 +64,14 @@ plotm(coastlat, coastlon, 'color',[.7 .7 .7]); % Plot the coastlines
 hold on;
 annotation('textbox',...
     [0.15 0.95 0.06 0.04],'String',{'A'},'LineStyle','none',...
-    'FontName','Arial','FontSize',9,'FontWeight','bold');
+    'FontName',fn,'FontSize',fsp,'FontWeight','bold');
 % legend
 pos=get(gca,'Position');
 h_at=axes('Position',[0.04 0.7 0.06 0.03]);
 scatter(1.5,1,50,'o','filled','MarkerFaceColor',[222 184 135]/255,'LineWidth',1); hold on;
 scatter(1.5,2,100,'o','filled','MarkerFaceColor',[147 112 219]/255,'LineWidth',1); hold on;
-text(2,1,'All GHCNd stations','FontName','Arial','fontsize',9');
-text(2,2,'Included stations','FontName','Arial','fontsize',9');
+text(2,1,'All GHCNd stations','FontName',fn,'fontsize',fs);
+text(2,2,'Included stations','FontName',fn,'fontsize',fs);
 axis off;
 hold on;
 
@@ -149,26 +157,26 @@ for i = 1:numel(perc8)
 
     text(x, y_text, txt, ...
         'HorizontalAlignment','center', ...
-        'FontSize',8, ...
-        'FontName','Arial');
+        'FontSize',fs, ...
+        'FontName',fn);
 end
 
 % Customize axes
 clear xticks;
-set(gca,'fontsize',9,'FontName','Arial');
+set(gca,'fontsize',fs,'FontName',fn);
 set(gca,'xtick',[1.5 3.5],'xticklabel',{'Increase mode', 'Shift mode'},...
-    'fontsize',9,'FontName','Arial','XTickLabelRotation',0);
+    'fontsize',fs,'FontName',fn,'XTickLabelRotation',0);
 
 xlim([0 5]);
 ylim([-1.5 18]);
-ylabel('Magnitude of modes (% K ^-^1)', 'fontsize',9,'FontName','Arial');
+ylabel('Magnitude of modes (% K ^-^1)', 'fontsize',fs,'FontName',fn);
 box on;
-text(0.2,16,'B','FontWeight','bold','fontsize',9,'FontName','Arial');
-legend('','Station observations','','Climate models','','','','','fontsize',9,'FontName','Arial'); legend('boxoff');
+text(0.03,0.95,'B','Units','normalized','FontWeight','bold','fontsize',fsp,'FontName',fn);
+legend('','Station observations','','Climate models','','','','','fontsize',fs,'FontName',fn); legend('boxoff');
 
 % export
 savefig('\\wsl.localhost\Ubuntu\home\jingya\station_model_precip_modes\figures\figS3.fig');
-exportgraphics(gcf,"\\wsl.localhost\Ubuntu\home\jingya\station_model_precip_modes\figures\figS3.png",...
-    'Resolution', 600);
 exportgraphics(gcf,"\\wsl.localhost\Ubuntu\home\jingya\station_model_precip_modes\figures\figS3.pdf",...
     'ContentType','vector','BackgroundColor','white'); % .pdf vector is the preferred format
+exportgraphics(gcf,"\\wsl.localhost\Ubuntu\home\jingya\station_model_precip_modes\figures\figS3.png",...
+    'Resolution', 600); % png fallback; 600 dpi is the ceiling before downsampling
