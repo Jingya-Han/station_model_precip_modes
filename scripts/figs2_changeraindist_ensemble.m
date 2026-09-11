@@ -1,5 +1,5 @@
-%% Supplementary Figure 1: Changes in the precipitation amount distribution in station observations and individual ensemble members from models. 
-% 1 September 2025, Jingya Han, Cornell University, Ithaca, NY. jh2423@cornell.edu
+%% Supplementary Figure S2: Changes in the precipitation amount distribution in station observations and individual ensemble members from models. 
+% September 2026, Jingya Han, Cornell University, Ithaca, NY. jh2423@cornell.edu
 % You might need to change the path of netCDF files for your use
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
