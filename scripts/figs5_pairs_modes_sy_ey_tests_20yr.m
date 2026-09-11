@@ -5,8 +5,16 @@
 
 
 clear
+% Science Advances figure standards:
+%   2-column width 18.4 cm; max depth 19.9 cm
+%   all type 8 pt sans serif, 6 pt minimum
+%   line weights >= 0.28 pt; SI units
+fn  = 'Arial'; % sans serif equivalent of Myriad, accepted by the guidelines
+fs  = 8;   % titles, row labels, legend
+fsl = 7;   % y tick labels in these small panels, still above the 6 pt minimum
+
 % load data
-missrate=19; % set acceptable miss rate 
+missrate=20; % set acceptable miss rate (the filenames below hardcode 20%miss)
 thelength=20;
 folder='\\wsl.localhost\ubuntu\home\jingya\station_model_precip_modes\dataforplot\';
 all_endyears=2014:2023; % endyear: earliest end year
@@ -15,25 +23,27 @@ count = 0;
 results_med=[];
 f=figure;clf
 set(gcf,'units','centimeters','paperpositionmode','auto');
-set(f,'Color','white'); 
-set(gcf,'position',[1 1 18 16]); 
-left=.15; down=.85; wid=.1; he=.1;
+set(f,'Color','white','Renderer','painters');
+set(gcf,'position',[1 1 18.4 16]); % 2 columns wide, within the 19.9 cm depth
+left=.115; down=.85; wid=.125; he=.1;
+gapx=.01; % horizontal gap: the columns use the full canvas so the year labels
+           % above them have room
 poss=nan(42,4); % 3rd: left down wid he for each subplot
 for isub=1:42
     if isub<=6
-       poss(isub,1)=left+(isub-1)*(wid+0.01); poss(isub,2)=down; poss(isub,3)=wid; poss(isub,4)=he;
+       poss(isub,1)=left+(isub-1)*(wid+gapx); poss(isub,2)=down; poss(isub,3)=wid; poss(isub,4)=he;
     elseif isub>=7 && isub<=12
-       poss(isub,1)=left+(isub-6-1)*(wid+0.01); poss(isub,2)=down-1*(he+0.02); poss(isub,3)=wid; poss(isub,4)=he;
+       poss(isub,1)=left+(isub-6-1)*(wid+gapx); poss(isub,2)=down-1*(he+0.02); poss(isub,3)=wid; poss(isub,4)=he;
     elseif isub>=13 && isub<=18
-       poss(isub,1)=left+(isub-12-1)*(wid+0.01); poss(isub,2)=down-2*(he+0.02); poss(isub,3)=wid; poss(isub,4)=he;
+       poss(isub,1)=left+(isub-12-1)*(wid+gapx); poss(isub,2)=down-2*(he+0.02); poss(isub,3)=wid; poss(isub,4)=he;
     elseif isub>=19 && isub<=24
-       poss(isub,1)=left+(isub-18-1)*(wid+0.01); poss(isub,2)=down-3*(he+0.02); poss(isub,3)=wid; poss(isub,4)=he;
+       poss(isub,1)=left+(isub-18-1)*(wid+gapx); poss(isub,2)=down-3*(he+0.02); poss(isub,3)=wid; poss(isub,4)=he;
     elseif isub>=25 && isub<=30
-       poss(isub,1)=left+(isub-24-1)*(wid+0.01); poss(isub,2)=down-4*(he+0.02); poss(isub,3)=wid; poss(isub,4)=he;
+       poss(isub,1)=left+(isub-24-1)*(wid+gapx); poss(isub,2)=down-4*(he+0.02); poss(isub,3)=wid; poss(isub,4)=he;
     elseif isub>=31 && isub<=36
-       poss(isub,1)=left+(isub-30-1)*(wid+0.01); poss(isub,2)=down-5*(he+0.02); poss(isub,3)=wid; poss(isub,4)=he;
+       poss(isub,1)=left+(isub-30-1)*(wid+gapx); poss(isub,2)=down-5*(he+0.02); poss(isub,3)=wid; poss(isub,4)=he;
     elseif isub>=37 && isub<=42
-       poss(isub,1)=left+(isub-36-1)*(wid+0.01); poss(isub,2)=down-6*(he+0.02); poss(isub,3)=wid; poss(isub,4)=he;
+       poss(isub,1)=left+(isub-36-1)*(wid+gapx); poss(isub,2)=down-6*(he+0.02); poss(isub,3)=wid; poss(isub,4)=he;
 
     end
 
@@ -99,9 +109,9 @@ results_med(:,count)=mediv;
 if count<=12
    s=subplot(7,6,count); s.Position=poss(count,:);
    if count<6
-    title([num2str(period2(1)),' - ',num2str(period2(end))],'FontWeight','normal','FontName','Arial','fontsize',9);
+    title([num2str(period2(1)),'-',num2str(period2(end))],'FontWeight','normal','FontName',fn,'fontsize',fs);
    elseif count==6
-   title([num2str(period2(1)),' - ',num2str(period2(end)-1)],'FontWeight','normal','FontName','Arial','fontsize',9);
+   title([num2str(period2(1)),'-',num2str(period2(end)-1)],'FontWeight','normal','FontName',fn,'fontsize',fs);
    end
 elseif count>12 && count<=17
        s=subplot(7,6,count+1); s.Position=poss(count+1,:);
@@ -150,69 +160,91 @@ xlim([0.5 4.5])
 ylim([-2 17]);
 yticks('auto')
 yticklabels({})
+set(gca,'FontName',fn,'FontSize',fsl);
 box on;
 
 
 if count==1
-   text(s.Position(1)-0.4,s.Position(2),[num2str(period1(1)),' - ',num2str(period1(end))]);
+   text(-0.55,0.5,[num2str(period1(1)),'-',num2str(period1(end))],'Units','normalized',...
+       'Rotation',90,'HorizontalAlignment','center','FontName',fn,'FontSize',fs);
    yticks([0 4 8 12 16]);
    yticklabels({'0','','8','','16'});
    ax = gca; % Get current axes
-   ax.YAxis.FontSize = 9; % Set the font size for the y-axis tick labels
-   ylabel('%/K','FontName','Arial','fontsize',9);
-   legend({'','Model','','Station','','','','','',''},'FontName','Arial','fontsize',9);
+   ax.FontName = fn;
+   ax.YAxis.FontSize = fsl; % Set the font size for the y-axis tick labels
+   ax.XAxis.FontSize = fsl;
+   ylabel('% K^-^1','FontName',fn,'fontsize',fs);
+   legend({'','Model','','Station','','','','','',''},'FontName',fn,'fontsize',fs);
    legend('boxoff');
 
 %    text(s.Position(1)-0.4,s.Position(2),'I');
 %    text(s.Position(1)-0.4,s.Position(2),'S');
    %    xticklabels({'I','S'});
 elseif count==7
-   text(s.Position(1)-0.4,s.Position(2),[num2str(period1(1)),' - ',num2str(period1(end))]);
+   text(-0.55,0.5,[num2str(period1(1)),'-',num2str(period1(end))],'Units','normalized',...
+       'Rotation',90,'HorizontalAlignment','center','FontName',fn,'FontSize',fs);
    xticklabels({'I', 'S' });
    yticks([0 4 8 12 16]);
    yticklabels({'0','','8','','16'});
    ax = gca; % Get current axes
-   ax.YAxis.FontSize = 9; % Set the font size for the y-axis tick labels
+   ax.FontName = fn;
+   ax.YAxis.FontSize = fsl; % Set the font size for the y-axis tick labels
+   ax.XAxis.FontSize = fsl;
 
 elseif count==13
-   text(s.Position(1)-0.4,s.Position(2),[num2str(period1(1)),' - ',num2str(period1(end))]);
+   text(-0.55,0.5,[num2str(period1(1)),'-',num2str(period1(end))],'Units','normalized',...
+       'Rotation',90,'HorizontalAlignment','center','FontName',fn,'FontSize',fs);
    xticklabels({'I', 'S' });
    yticks([0 4 8 12 16]);
    yticklabels({'0','','8','','16'});
    ax = gca; % Get current axes
-   ax.YAxis.FontSize = 9; % Set the font size for the y-axis tick labels
+   ax.FontName = fn;
+   ax.YAxis.FontSize = fsl; % Set the font size for the y-axis tick labels
+   ax.XAxis.FontSize = fsl;
 
 elseif count==18
-   text(s.Position(1)-0.4,s.Position(2),[num2str(period1(1)),' - ',num2str(period1(end))]);
+   text(-0.55,0.5,[num2str(period1(1)),'-',num2str(period1(end))],'Units','normalized',...
+       'Rotation',90,'HorizontalAlignment','center','FontName',fn,'FontSize',fs);
    xticklabels({'I', 'S' });
    yticks([0 4 8 12 16]);
    yticklabels({'0','','8','','16'});
    ax = gca; % Get current axes
-   ax.YAxis.FontSize = 9; % Set the font size for the y-axis tick labels
+   ax.FontName = fn;
+   ax.YAxis.FontSize = fsl; % Set the font size for the y-axis tick labels
+   ax.XAxis.FontSize = fsl;
 
 elseif count==22
-   text(s.Position(1)-0.4,s.Position(2),[num2str(period1(1)),' - ',num2str(period1(end))]);
+   text(-0.55,0.5,[num2str(period1(1)),'-',num2str(period1(end))],'Units','normalized',...
+       'Rotation',90,'HorizontalAlignment','center','FontName',fn,'FontSize',fs);
    xticklabels({'I', 'S' });
    yticks([0 4 8 12 16]);
    yticklabels({'0','','8','','16'});
    ax = gca; % Get current axes
-   ax.YAxis.FontSize = 9; % Set the font size for the y-axis tick labels
+   ax.FontName = fn;
+   ax.YAxis.FontSize = fsl; % Set the font size for the y-axis tick labels
+   ax.XAxis.FontSize = fsl;
 
 elseif count==25
-   text(s.Position(1)-0.4,s.Position(2),[num2str(period1(1)),' - ',num2str(period1(end))]);
+   text(-0.55,0.5,[num2str(period1(1)),'-',num2str(period1(end))],'Units','normalized',...
+       'Rotation',90,'HorizontalAlignment','center','FontName',fn,'FontSize',fs);
    xticklabels({'I', 'S' });
    yticks([0 4 8 12 16]);
    yticklabels({'0','','8','','16'});
    ax = gca; % Get current axes
-   ax.YAxis.FontSize = 9; % Set the font size for the y-axis tick labels
+   ax.FontName = fn;
+   ax.YAxis.FontSize = fsl; % Set the font size for the y-axis tick labels
+   ax.XAxis.FontSize = fsl;
 
 elseif count==27
-   text(s.Position(1)-0.4,s.Position(2),[num2str(period1(1)),' - ',num2str(period1(end))]);
+   text(-0.55,0.5,[num2str(period1(1)),'-',num2str(period1(end))],'Units','normalized',...
+       'Rotation',90,'HorizontalAlignment','center','FontName',fn,'FontSize',fs);
    xticklabels({'I', 'S' });
    yticks([0 4 8 12 16]);
    yticklabels({'0','','8','','16'});
    ax = gca; % Get current axes
-   ax.YAxis.FontSize = 9; % Set the font size for the y-axis tick labels
+   ax.FontName = fn;
+   ax.YAxis.FontSize = fsl; % Set the font size for the y-axis tick labels
+   ax.XAxis.FontSize = fsl;
 
 end
 
@@ -227,10 +259,10 @@ i_shirate=medianpairs(4)./medianpairs(3) % rate of shift mode
 end
 
 savefig('\\wsl.localhost\Ubuntu\home\jingya\station_model_precip_modes\figures\figS5.fig');
-exportgraphics(gcf,"\\wsl.localhost\Ubuntu\home\jingya\station_model_precip_modes\figures\figS5.png",...
-    'Resolution', 600); % png fallback; 600 dpi is the ceiling before downsampling
 exportgraphics(gcf,"\\wsl.localhost\Ubuntu\home\jingya\station_model_precip_modes\figures\figS5.pdf",...
     'ContentType','vector','BackgroundColor','white'); % .pdf vector is the preferred format
+exportgraphics(gcf,"\\wsl.localhost\Ubuntu\home\jingya\station_model_precip_modes\figures\figS5.png",...
+    'Resolution', 600); % png fallback; 600 dpi is the ceiling before downsampling
 
 % % pdf version
 % addpath(genpath('C:\Program Files\MATLAB\altmany-export_fig-d5538e9'));
