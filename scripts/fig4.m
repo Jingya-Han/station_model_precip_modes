@@ -1,12 +1,20 @@
 %% Fig. 4: Change in extreme precipitation.
-% 1 September 2025, Jingya Han, Cornell University, Ithaca, NY. jh2423@cornell.edu
+% September 2026, Jingya Han, Cornell University, Ithaca, NY. jh2423@cornell.edu
 % You might need to change the path of netCDF files for your use
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clear
+% Science Advances figure standards:
+%   2-column width 18.4 cm; max depth 19.9 cm
+%   panel letters 9 pt bold capitals; all other type 8 pt sans serif (6 pt min)
+%   line weights >= 0.28 pt
+fn  = 'Arial'; % sans serif equivalent of Myriad, accepted by the guidelines
+fs  = 8;   % labels, ticks, legends
+fsp = 9;   % panel letters, bold
+
 % preliminary items
 missrate=20;
-path='/share/cliprelabs/jh2423/P1/dataforplot/';
+path='\\wsl.localhost\ubuntu\home\jingya\station_model_precip_modes\dataforplot\';
 
 mmm_dfreq=ncread([path,'way1_MMM_',num2str(missrate),'%miss_19551984_19942023.nc'],'mmm_dfreq');
 mmm_dfreqshiftinc=ncread([path,'way1_MMM_',num2str(missrate),'%miss_19551984_19942023.nc'],'mmm_dfreqshiftinc');
@@ -38,13 +46,11 @@ xticks(isnan(xticks))=[];
 
 f=figure;clf
 set(gcf,'units','centimeters','paperpositionmode','auto');
-set(gcf,'position',[1 1 18 6]); 
-set(f,'Color','white');
-left=0.08; down= .2;width= .4;he= .7;
-poss=[left down width he;
-left+0.45 down width he;
-left down-he-0.12 width he;
-left+0.45 down-he-0.12 width he];
+set(gcf,'position',[1 1 18.4 7]);
+set(f,'Color','white','Renderer','painters');
+left=0.085; down=.20; width=.40; he=.70;
+poss=[left       down width he;
+      left+0.475 down width he];
 
 % percentile
 s=subplot(2,2,1); s.Position=poss(1,:);
@@ -63,11 +69,11 @@ fill([x(jud2); flipud(x(jud2))], [dfreqshiftinc_Lower(jud2); flipud(dfreqshiftin
     MMMspicolor,'FaceAlpha', 0.2, 'EdgeColor', 'none');
 hold on;
 %plot the line
-drpercentileplot(mmm_dfreq,MMMsimcolor,mmm_dfreqshiftinc,MMMspicolor,pbinm,xticks99);
+drpercentileplot(mmm_dfreq,MMMsimcolor,mmm_dfreqshiftinc,MMMspicolor,pbinm,xticks99,fn,fs);
 xlim([2 length(pbinm)])
-ylabel('\DeltaPrecipitation rate (%/K)','FontName','Arial','FontSize',9);
-text(3,22,'a','FontWeight','bold','FontName','Arial','FontSize',9);
-legend('','','Climate models','Increase + Shift modes','FontName','Arial','FontSize',9); legend('boxoff');
+ylabel('\DeltaPrecipitation rate (% K^-^1)','FontName',fn,'FontSize',fs);
+text(0.03,0.95,'A','Units','normalized','FontWeight','bold','FontName',fn,'FontSize',fsp);
+legend('','','Climate models','Increase + shift modes','FontName',fn,'FontSize',fs); legend('boxoff');
 
 s=subplot(2,2,2); s.Position=poss(2,:);
 % Compute 95% confidence intervals
@@ -85,15 +91,21 @@ fill([x(jud2); flipud(x(jud2))], [dfreqshiftinc_Lower(jud2); flipud(dfreqshiftin
     stationspicolor,'FaceAlpha', 0.2, 'EdgeColor', 'none');
 hold on;
 %plot the line
-drpercentileplot(dfreq,stationobscolor,dfreqshiftinc,stationspicolor,pbinm,xticks99);
-xlim([5 length(pbinm)])
-ylabel('\DeltaPrecipitation rate (%/K)','FontName','Arial','FontSize',9);
-text(5.8,22,'b','FontWeight','bold','FontName','Arial','FontSize',9);
-legend('','','Station observations','Increase + Shift modes','FontName','Arial','FontSize',9); legend('boxoff');
+drpercentileplot(dfreq,stationobscolor,dfreqshiftinc,stationspicolor,pbinm,xticks99,fn,fs);
+% start where the station data actually begin: the lowest percentile bins are
+% empty because a station's dry days leave no rain rate to report there
+xb=find(~isnan(dfreq(1:length(pbinm))) & dfreq(1:length(pbinm))~=0, 1, 'first');
+xlim([xb length(pbinm)])
+ylabel('\DeltaPrecipitation rate (% K^-^1)','FontName',fn,'FontSize',fs);
+text(0.03,0.95,'B','Units','normalized','FontWeight','bold','FontName',fn,'FontSize',fsp);
+legend('','','Station observations','Increase + shift modes','FontName',fn,'FontSize',fs); legend('boxoff');
 
-savefig('/share/cliprelabs/jh2423/P1/figures/Fig4.fig');
-exportgraphics(gcf,"/share/cliprelabs/jh2423/P1/figures/Fig4.png",...
-    'Resolution', 300);
+savefig('\\wsl.localhost\ubuntu\home\jingya\station_model_precip_modes\figures\Fig4.fig');
+exportgraphics(gcf,"\\wsl.localhost\Ubuntu\home\jingya\station_model_precip_modes\figures\Fig4.pdf",...
+    'ContentType','vector','BackgroundColor','white'); % .pdf vector is the preferred format
+exportgraphics(gcf,"\\wsl.localhost\Ubuntu\home\jingya\station_model_precip_modes\figures\Fig4.png",...
+    'Resolution', 600); % png fallback; 600 dpi is the ceiling before downsampling
+
 % % pdf version
 % addpath(genpath('C:\Program Files\MATLAB\altmany-export_fig-d5538e9'));
 % export_fig(gcf,'-eps', '-r300', '-painters', '\\wsl.localhost\Ubuntu\home\jingya\station_model_precip_modes\figures\Fig4.eps');
@@ -103,12 +115,12 @@ exportgraphics(gcf,"/share/cliprelabs/jh2423/P1/figures/Fig4.png",...
 %% plotting functions 
     
 
-    function []=drpercentileplot(dfreq1,color1,dfreq2,color2,pbinm,xticks99)
+    function []=drpercentileplot(dfreq1,color1,dfreq2,color2,pbinm,xticks99,fn,fs)
         % plot the change in rain rate as a function of percentile.  two curves in two
         % different colors.  
         
         p=plot(1:length(pbinm),dfreq1,'-k',1:length(pbinm),dfreq2,'-m');
-        set(gca,'fontsize',7,'FontName','Arial');
+        set(gca,'fontsize',fs,'FontName',fn);
         set(p(1),'color',color1)
         set(p(2),'color',color2)
         set(p,'linewidth',1.2)
@@ -136,8 +148,5 @@ exportgraphics(gcf,"/share/cliprelabs/jh2423/P1/figures/Fig4.png",...
         xlim([1 length(pbinm)])
         
         % ylabel('\DeltaRain rate (%/K)')
-        xlabel('Percentile','FontName','Arial','FontSize',9)
+        xlabel('Percentile','FontName',fn,'FontSize',fs)
     end
-
-
-    
