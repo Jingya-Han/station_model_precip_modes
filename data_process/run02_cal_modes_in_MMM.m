@@ -91,6 +91,7 @@ filename=[path,'way1_MMM_',num2str(missrate),'%miss_',num2str(period1(1)),num2st
 fileinfo=matfile(filename);
 ncfile=([path,'way1_MMM_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),...
     '_',num2str(period2(1)),num2str(period2(end)),'.nc']);
+if isfile(ncfile); delete(ncfile); end
 vars = who(fileinfo);
 for i = 1:length(vars) % Loop through variables and load them one by one
     varname = vars{i};
@@ -117,7 +118,7 @@ tic
     (finalids,indexofgrid,cmip6folder,'old',selectedmodels,iex,oldensemble,modelsy, modeley);
 toc
 [oldMMMppdf1,oldMMMpamt1,oldMMMppdf2,oldMMMpamt2,...
- gridppdf1,gridppdf2,gridpamt1,gridpamt2]=cmip_MMMraindistp1p2(oldfreqmodelsample,oldamountmodelsample,modelsy:modeley,period1,period2);
+ ~,~,~,~]=cmip_MMMraindistp1p2(oldfreqmodelsample,oldamountmodelsample,modelsy:modeley,period1,period2);
 
 save( [path,'way0_MMM_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),'_',...
     num2str(period2(1)),num2str(period2(end)),'.mat'],'oldMMMppdf1','oldMMMpamt1','oldBINCRATES','dt');
@@ -127,6 +128,7 @@ filename=[path,'way0_MMM_',num2str(missrate),'%miss_',num2str(period1(1)),num2st
 fileinfo=matfile(filename);
 ncfile=([path,'way0_MMM_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),...
     '_',num2str(period2(1)),num2str(period2(end)),'.nc']);
+if isfile(ncfile); delete(ncfile); end
 vars = who(fileinfo);
 for i = 1:length(vars) % Loop through variables and load them one by one
     varname = vars{i};
@@ -141,52 +143,52 @@ ncwriteatt(ncfile, '/', 'title', 'way0 distributions over aggregation of gridpoi
 % Add global attributes (metadata)
 [ncfile]=nc_metadata(ncfile);
 
-%% Full-period climatology for Fig. 1B
-% Calculate the CMIP6 multi-model-mean precipitation amount distribution
-% over the full study period (1955-2023).
-fullperiod = 1955:2023;
-
-[KDEMMMppdf_full,KDEMMMpamt_full,~,~,~,~,~,~] =  cmip_MMMraindistp1p2( ...
-    ksfreqmodelsample,ksamountmodelsample, ...
-    modelsy:modeley,fullperiod,fullperiod);% Smoothed distribution -- Way1
-KDEMMMppdf_full = KDEMMMppdf_full(:);
-KDEMMMpamt_full = KDEMMMpamt_full(:);
-BINCRATES_full   = BINCRATES(:);
-
-[oldMMMppdf_full,oldMMMpamt_full,~,~,~,~,~,~] =  cmip_MMMraindistp1p2( ...
-    oldfreqmodelsample,oldamountmodelsample, ...
-    modelsy:modeley,fullperiod,fullperiod);% Raw distribution -- Way0
-oldMMMppdf_full  = oldMMMppdf_full(:);
-oldMMMpamt_full  = oldMMMpamt_full(:);
-oldBINCRATES_full = oldBINCRATES(:);
-
-fig1file = [path,'Fig1_MMM_climatology_', ...
-    num2str(fullperiod(1)),'_',num2str(fullperiod(end)),'.nc'];% Save full-period climatology for Fig. 1B
-if isfile(fig1file)
-    delete(fig1file);
-end
-nBins = length(BINCRATES_full);% Smoothed distribution
-nccreate(fig1file,'BINCRATES_full','Dimensions',{'bins',nBins});
-nccreate(fig1file,'KDEMMMppdf_full','Dimensions',{'bins',nBins});
-nccreate(fig1file,'KDEMMMpamt_full', 'Dimensions',{'bins',nBins});
-ncwrite(fig1file,'BINCRATES_full',single(BINCRATES_full));
-ncwrite(fig1file,'KDEMMMppdf_full',single(KDEMMMppdf_full));
-ncwrite(fig1file,'KDEMMMpamt_full',single(KDEMMMpamt_full));
-
-nBins_old = length(oldBINCRATES_full);% Raw distribution
-nccreate(fig1file,'oldBINCRATES_full', 'Dimensions',{'bins_old',nBins_old});
-nccreate(fig1file,'oldMMMppdf_full', 'Dimensions',{'bins_old',nBins_old});
-nccreate(fig1file,'oldMMMpamt_full', 'Dimensions',{'bins_old',nBins_old});
-ncwrite(fig1file,'oldBINCRATES_full',single(oldBINCRATES_full));
-ncwrite(fig1file,'oldMMMppdf_full',single(oldMMMppdf_full));
-ncwrite(fig1file,'oldMMMpamt_full',single(oldMMMpamt_full));
-ncwriteatt(fig1file,'/','title', ...
-    'CMIP6 multi-model-mean precipitation climatology for Fig. 1B, 1955-2023');
-ncwriteatt(fig1file,'/','period', ...
-    [num2str(fullperiod(1)),'-',num2str(fullperiod(end))]);
-[fig1file] = nc_metadata(fig1file);
-clear ksfreqmodelsample ksamountmodelsample % Samples are no longer needed below
-clear oldfreqmodelsample oldamountmodelsample
+% %% Full-period climatology for Fig. 1B
+% % Calculate the CMIP6 multi-model-mean precipitation amount distribution
+% % over the full study period (1955-2023).
+% fullperiod = 1955:2023;
+% 
+% [KDEMMMppdf_full,KDEMMMpamt_full,~,~,~,~,~,~] =  cmip_MMMraindistp1p2( ...
+%     ksfreqmodelsample,ksamountmodelsample, ...
+%     modelsy:modeley,fullperiod,fullperiod);% Smoothed distribution -- Way1
+% KDEMMMppdf_full = KDEMMMppdf_full(:);
+% KDEMMMpamt_full = KDEMMMpamt_full(:);
+% BINCRATES_full   = BINCRATES(:);
+% 
+% [oldMMMppdf_full,oldMMMpamt_full,~,~,~,~,~,~] =  cmip_MMMraindistp1p2( ...
+%     oldfreqmodelsample,oldamountmodelsample, ...
+%     modelsy:modeley,fullperiod,fullperiod);% Raw distribution -- Way0
+% oldMMMppdf_full  = oldMMMppdf_full(:);
+% oldMMMpamt_full  = oldMMMpamt_full(:);
+% oldBINCRATES_full = oldBINCRATES(:);
+% 
+% fig1file = [path,'Fig1_MMM_climatology_', ...
+%     num2str(fullperiod(1)),'_',num2str(fullperiod(end)),'.nc'];% Save full-period climatology for Fig. 1B
+% if isfile(fig1file)
+%     delete(fig1file);
+% end
+% nBins = length(BINCRATES_full);% Smoothed distribution
+% nccreate(fig1file,'BINCRATES_full','Dimensions',{'bins',nBins});
+% nccreate(fig1file,'KDEMMMppdf_full','Dimensions',{'bins',nBins});
+% nccreate(fig1file,'KDEMMMpamt_full', 'Dimensions',{'bins',nBins});
+% ncwrite(fig1file,'BINCRATES_full',single(BINCRATES_full));
+% ncwrite(fig1file,'KDEMMMppdf_full',single(KDEMMMppdf_full));
+% ncwrite(fig1file,'KDEMMMpamt_full',single(KDEMMMpamt_full));
+% 
+% nBins_old = length(oldBINCRATES_full);% Raw distribution
+% nccreate(fig1file,'oldBINCRATES_full', 'Dimensions',{'bins_old',nBins_old});
+% nccreate(fig1file,'oldMMMppdf_full', 'Dimensions',{'bins_old',nBins_old});
+% nccreate(fig1file,'oldMMMpamt_full', 'Dimensions',{'bins_old',nBins_old});
+% ncwrite(fig1file,'oldBINCRATES_full',single(oldBINCRATES_full));
+% ncwrite(fig1file,'oldMMMppdf_full',single(oldMMMppdf_full));
+% ncwrite(fig1file,'oldMMMpamt_full',single(oldMMMpamt_full));
+% ncwriteatt(fig1file,'/','title', ...
+%     'CMIP6 multi-model-mean precipitation climatology for Fig. 1B, 1955-2023');
+% ncwriteatt(fig1file,'/','period', ...
+%     [num2str(fullperiod(1)),'-',num2str(fullperiod(end))]);
+% [fig1file] = nc_metadata(fig1file);
+% clear ksfreqmodelsample ksamountmodelsample % Samples are no longer needed below
+% clear oldfreqmodelsample oldamountmodelsample
 
 %% spatial pattern of modes in cmip6-mmm
 % rain distribtions over each grid
@@ -195,12 +197,14 @@ gridinc=nan(length(gridppdf1(:,1)),1);
 gridshift=nan(length(gridppdf1(:,1)),1);
 grid_a_o=nan(length(gridppdf1(:,1)),1);
 grid_b_o=nan(length(gridppdf1(:,1)),1);
+griderr=nan(length(gridppdf1(:,1)),1);
 for ig=1:length(gridppdf1(:,1))
     [mmmshift,mmminc,mmmerr,~,~,~,~,~,~,~,...
      ~,~,~,~,~]=makeshiftinc_stations...
     (gridppdf1(ig,:)', gridpamt1(ig,:)', gridppdf2(ig,:)', gridpamt2(ig,:)',dt,BINCRATES);
     gridinc(ig,1)=mmminc;
     gridshift(ig,1)=mmmshift;
+    griderr(ig,1)=mmmerr;  
     [a_o, b_o]=calc_ao_bo_raindist(gridpamt1(ig,:)',gridpamt2(ig,:)',BINCRATES);
     a_o=a_o./dt;
     grid_a_o(ig,1)=a_o;
@@ -210,13 +214,14 @@ for ig=1:length(gridppdf1(:,1))
 
 end
 save([path,'cmip6_modes_spatial_dist_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),'_',...
-    num2str(period2(1)),num2str(period2(end)),'.mat'],'gridinc','gridshift','grid_a_o','grid_b_o');
+    num2str(period2(1)),num2str(period2(end)),'.mat'],'gridinc','gridshift','griderr','grid_a_o','grid_b_o');
 
 filename=[path,'cmip6_modes_spatial_dist_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),...
     '_',num2str(period2(1)),num2str(period2(end)),'.mat'];
 fileinfo=matfile(filename);
 ncfile=([path,'cmip6_modes_spatial_dist_',num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),...
     '_',num2str(period2(1)),num2str(period2(end)),'.nc']);
+if isfile(ncfile); delete(ncfile); end
 vars = who(fileinfo);
 for i = 1:length(vars) % Loop through variables and load them one by one
     varname = vars{i};
