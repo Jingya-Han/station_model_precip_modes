@@ -127,14 +127,14 @@ l = legend(lab,'Location','northeast','FontName',fn,'FontSize',fsl); l.Box='off'
 
 axes(ax(2)); hold on; box on
 plot(xr,[0 0],'-','Color',[.6 .6 .6],'LineWidth',0.5);
-plot(x, damt, '-', 'Color', [0.2 0.2 0.2], 'LineWidth', 1.2);
+hd = plot(x, damt, '-', 'Color', [0.2 0.2 0.2], 'LineWidth', 1.2);
 set(gca,'xtick',xticks,'xticklabel',xtickratesp,'XTickLabelRotation',0, ...
-    'FontName',fn,'FontSize',fs);
+'FontName',fn,'FontSize',fs);
 xlim(xr);
 ylim([-1 1]*1.3*max(abs(damt)));
 xlabel('Precipitation rate (mm d^-^1)','FontName',fn,'FontSize',fs);
 ylabel('\DeltaPrecipitation amount (mm d^-^1)','FontName',fn,'FontSize',fs);
-% title('6 stations minus 3 stations','FontName',fn,'FontSize',fs,'FontWeight','normal');
+l = legend(hd,{'6 stations - 3 stations'},'Location','northeast','FontName',fn,'FontSize',fsl); l.Box='off';
 
 lbl = {'A','B'};
 for k = 1:2
