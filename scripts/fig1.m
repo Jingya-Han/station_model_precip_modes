@@ -2,24 +2,37 @@
 % 1 September 2026, Jingya Han, Cornell University, Ithaca, NY.
 % jh2423@cornell.edu
 % You might need to change the path of netCDF files for your use
+%   A: station map
+%   B: early epoch (1955-1984), raw and smoothed
+%   C: late epoch (1994-2023), smoothed
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clear
-fn='Arial'; fs=8; fsp=9; ms=36; xlab=0.03;
+fn='Arial'; fs=8; fsl=7; fsp=9; ms=36; xlab=0.03;
+period1=1955:1984; period2=1994:2023; missrate=20;
 path='\\wsl.localhost\Ubuntu\home\jingya\station_model_precip_modes\dataforplot\';
 
-%% Load full-period climatology, 1955-2023
-f_sta_full=[path,'Fig1_stations_climatology_1955_2023.nc'];
-bincrates=ncread(f_sta_full,'bincrates_full');
-kdepamt_full=ncread(f_sta_full,'kdepamt_full');
-oldbincrates=ncread(f_sta_full,'oldbincrates_full');
-oldpamt_full=ncread(f_sta_full,'oldpamt_full');
+%% Load distributions for the two epochs
+ep=[num2str(missrate),'%miss_',num2str(period1(1)),num2str(period1(end)),...
+    '_',num2str(period2(1)),num2str(period2(end)),'.nc'];
+f_sta0=[path,'way0_stations_',ep];   % raw
+f_sta1=[path,'way1_stations_',ep];   % smoothed
+f_mmm0=[path,'way0_MMM_',ep];
+f_mmm1=[path,'way1_MMM_',ep];
 
-f_mmm_full=[path,'Fig1_MMM_climatology_1955_2023.nc'];
-BINCRATES=ncread(f_mmm_full,'BINCRATES_full');
-KDEMMMpamt_full=ncread(f_mmm_full,'KDEMMMpamt_full');
-oldBINCRATES=ncread(f_mmm_full,'oldBINCRATES_full');
-oldMMMpamt_full=ncread(f_mmm_full,'oldMMMpamt_full');
+% raw distributions, early epoch only
+oldbincrates=ncread(f_sta0,'oldbincrates');
+oldpamt1=ncread(f_sta0,'oldpamt1');
+oldBINCRATES=ncread(f_mmm0,'oldBINCRATES');
+oldMMMpamt1=ncread(f_mmm0,'oldMMMpamt1');
+
+% smoothed distributions, both epochs
+bincrates=ncread(f_sta1,'bincrates');
+kdepamt1=ncread(f_sta1,'kdepamt1');
+kdepamt2=ncread(f_sta1,'kdepamt2');
+BINCRATES=ncread(f_mmm1,'BINCRATES');
+KDEMMMpamt1=ncread(f_mmm1,'KDEMMMpamt1');
+KDEMMMpamt2=ncread(f_mmm1,'KDEMMMpamt2');
 
 %% Station locations
 finallat=ncread([path,'stationslatlon.nc'],'finallat');
@@ -31,8 +44,9 @@ ghcnlons=ncread([path,'stationslatlon.nc'],'ghcnlons');
 f=figure; clf
 set(gcf,'units','centimeters','paperpositionmode','auto','position',[1 1 18.4 15]);
 set(f,'Color','white');
-poss=[0.090 0.57 0.80 0.40;
-      0.180 0.15 0.64 0.34];
+poss=[0.090 0.57 0.80 0.40;    % A: station map
+      0.085 0.15 0.39 0.34;    % B: early epoch
+      0.545 0.15 0.39 0.34];   % C: late epoch
 
 %% A: station map
 s=subplot(2,1,1); s.Position=poss(1,:);
@@ -52,39 +66,56 @@ text(2,1,'All GHCNd stations','FontName',fn,'fontsize',fs);
 text(2,2,'Included stations','FontName',fn,'fontsize',fs);
 axis off
 
-%% X-axis setup for panel B
+%% X-axis setup, shared by B and C
 xtickrates=[0 0.1:.1:.9 1:1:9 10:10:90 100:100:1000];
 xticks=interp1(bincrates,1:length(bincrates),xtickrates);
 xtickratesp={0 0.1 [] [] [] [] [] [] [] [] 1 [] [] [] [] [] [] [] [] 10 [] [] [] [] [] [] [] [] 100 [] [] [] [] [] [] [] [] 1000};
 xtickratesp(isnan(xticks))=[]; xticks(isnan(xticks))=[];
 x01=interp1(bincrates,1:length(bincrates),0.1);
-xmax=max([length(bincrates) length(oldbincrates) length(BINCRATES) length(oldBINCRATES)]);
+x1000=interp1(BINCRATES,1:length(BINCRATES),1000);
 
 stacolor=[30 144 255]/255;
 modcolor=[255 144 30]/255;
 staraw=[.5 .5 .5];
 modraw=[50 205 50]/255;
 
-%% B: Full-period climatology, 1955-2023
-s=subplot(2,1,2); s.Position=poss(2,:);
-h1=scatter(1:length(oldbincrates),oldpamt_full,ms,'MarkerEdgeColor',staraw); hold on; box on
-h2=plot(1:length(bincrates),kdepamt_full,'-','Color',stacolor,'LineWidth',1.5);
-h3=plot(1:length(oldBINCRATES),oldMMMpamt_full,'-','Color',modraw,'LineWidth',1.5);
-h4=plot(1:length(BINCRATES),KDEMMMpamt_full,'-','Color',modcolor,'LineWidth',1.5);
+%% B: early epoch, raw and smoothed
+s=subplot(2,2,3); s.Position=poss(2,:);
+h1=scatter(1:length(oldbincrates),oldpamt1,ms,'MarkerEdgeColor',staraw); hold on; box on
+h2=plot(1:length(bincrates),kdepamt1,'-','Color',stacolor,'LineWidth',1.5);
+h3=plot(1:length(oldBINCRATES),oldMMMpamt1,'-','Color',modraw,'LineWidth',1.5);
+h4=plot(1:length(BINCRATES),KDEMMMpamt1,'-','Color',modcolor,'LineWidth',1.5);
 
-legend([h1 h2 h3 h4],{'Station-raw','Station-smoothed','Model-raw','Model-smoothed'}, ...
-    'Location','northeast','FontName',fn,'fontsize',fs);
-legend('boxoff')
-x1000=interp1(BINCRATES,1:length(BINCRATES),1000);
+% legend in the upper left, where the curves are low (light rain rates)
+lg=legend([h1 h2 h3 h4],{'Station-raw','Station-smoothed','Model-raw','Model-smoothed'}, ...
+    'Location','northwest','FontName',fn,'FontSize',fsl,'Box','off');
+lg.ItemTokenSize=[15 18];            % shorter line samples, so the legend ends before the peak
+lg.Position(2)=lg.Position(2)-0.025; % move it below the panel letter
+
 set(gca,'xtick',xticks,'xticklabel',xtickratesp,'fontsize',fs,'XTickLabelRotation',0,'FontName',fn);
 xlim([x01 x1000]); ylim([0 0.065]);
 text(xlab,0.94,'B','Units','normalized','FontName',fn,'fontsize',fsp,'FontWeight','bold');
-title(['1955',char(8211),'2023'],'FontName',fn,'fontsize',fs,'FontWeight','normal');
+title([num2str(period1(1)),char(8211),num2str(period1(end))],'FontName',fn,'fontsize',fs,'FontWeight','normal');
 xlabel('Precipitation rate (mm d^-^1)','FontName',fn,'fontsize',fs);
 ylabel('Precipitation amount (mm d^-^1)','FontName',fn,'fontsize',fs);
+
+%% C: late epoch, smoothed only
+s=subplot(2,2,4); s.Position=poss(3,:);
+c1=plot(1:length(bincrates),kdepamt2,'--','Color',stacolor,'LineWidth',1.5); hold on; box on
+c2=plot(1:length(BINCRATES),KDEMMMpamt2,'--','Color',modcolor,'LineWidth',1.5);
+
+lg=legend([c1 c2],{'Station-smoothed','Model-smoothed'}, ...
+    'Location','northwest','FontName',fn,'FontSize',fsl,'Box','off');
+lg.ItemTokenSize=[15 18];
+lg.Position(2)=lg.Position(2)-0.025;
+
+set(gca,'xtick',xticks,'xticklabel',xtickratesp,'fontsize',fs,'XTickLabelRotation',0,'FontName',fn);
+xlim([x01 x1000]); ylim([0 0.065]);   % same scale as B
+text(xlab,0.94,'C','Units','normalized','FontName',fn,'fontsize',fsp,'FontWeight','bold');
+title([num2str(period2(1)),char(8211),num2str(period2(end))],'FontName',fn,'fontsize',fs,'FontWeight','normal');
+xlabel('Precipitation rate (mm d^-^1)','FontName',fn,'fontsize',fs);
+% no y label: C shares the y axis of B
 
 savefig('\\wsl.localhost\Ubuntu\home\jingya\station_model_precip_modes\figures\Fig1.fig');
 exportgraphics(gcf,"\\wsl.localhost\Ubuntu\home\jingya\station_model_precip_modes\figures\Fig1.png",'Resolution',600);
 exportgraphics(gcf,"\\wsl.localhost\Ubuntu\home\jingya\station_model_precip_modes\figures\Fig1.pdf",'ContentType','vector','BackgroundColor','white');
-% addpath(genpath('C:\Program Files\MATLAB\altmany-export_fig-d5538e9'));
-% export_fig(gcf,'-eps','-r300','-painters','\\wsl.localhost\Ubuntu\home\jingya\station_model_precip_modes\figures\Fig1.eps');
